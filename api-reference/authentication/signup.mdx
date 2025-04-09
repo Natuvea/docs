@@ -1,0 +1,204 @@
+---
+title: 'Sign Up API'
+description: 'Create new user accounts with parent-child hierarchy'
+api: 'POST https://api.authiqa.com/auth/signup'
+---
+
+## Overview
+
+Create a new user account, either as a parent organization account or a child account under an existing parent.
+
+## API Details
+
+### Request Format
+
+<ParamField body="username" type="string" required>
+  Username (alphanumeric + underscore only, max 30 chars)
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  Valid email address
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  Password meeting security requirements
+</ParamField>
+
+<ParamField body="parentApiKey" type="string">
+  Required only for child account creation
+</ParamField>
+
+<RequestExample>
+```json Parent Account
+{
+  "username": "parentuser",
+  "email": "parent@company.com",
+  "password": "SecurePass123!"
+}
+```
+
+```json Child Account
+{
+  "username": "childuser",
+  "email": "child@company.com",
+  "password": "SecurePass123!",
+  "parentApiKey": "APK_1234567890abcdef_1234567890"
+}
+```
+</RequestExample>
+
+## Try It Out
+
+<Note>
+Test the API by filling in the values and clicking Send:
+</Note>
+
+<Card>
+  <ParamField path="username" placeholder="username123" required>
+    Username for the account
+  </ParamField>
+
+  <ParamField path="email" placeholder="user@example.com" required>
+    Email address
+  </ParamField>
+
+  <ParamField path="password" type="password" placeholder="SecurePass123!" required>
+    Secure password
+  </ParamField>
+
+  <ParamField path="parentApiKey" placeholder="APK_1234567890abcdef_1234">
+    Parent API Key (for child accounts)
+  </ParamField>
+
+  <Expandable title="Headers" defaultOpen>
+    <ParamField header="Content-Type" value="application/json" />
+  </Expandable>
+
+  <Button
+    onClick={() => {
+      alert('Sending request...');
+    }}
+  >
+    Send Request
+  </Button>
+</Card>
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.authiqa.com/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "email": "user@example.com",
+    "password": "SecurePass123!"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.authiqa.com/auth/signup', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    username: 'testuser',
+    email: 'user@example.com',
+    password: 'SecurePass123!'
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.authiqa.com/auth/signup',
+    json={
+        'username': 'testuser',
+        'email': 'user@example.com',
+        'password': 'SecurePass123!'
+    }
+)
+```
+
+```php PHP
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://api.authiqa.com/auth/signup');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'username' => 'testuser',
+    'email' => 'user@example.com',
+    'password' => 'SecurePass123!'
+]));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+```
+</CodeGroup>
+
+## Requirements
+
+<CardGroup cols={2}>
+  <Card title="Username" icon="user">
+    - Alphanumeric + underscore only
+    - Max 30 characters
+    - Must be unique (per parent for child accounts)
+  </Card>
+  <Card title="Password" icon="lock">
+    - Minimum 8 characters
+    - One uppercase letter
+    - One lowercase letter
+    - One number
+    - One special character
+  </Card>
+</CardGroup>
+
+## Response Examples
+
+<ResponseField name="200: Success">
+  ```json
+  {
+    "success": true,
+    "data": {
+      "userID": "USR_12345",
+      "username": "testuser",
+      "email": "user@example.com",
+      "createdAt": 1729616234,
+      "apiKey": "APK_abc123def456_1234567890",
+      "emailVerified": false,
+      "parentAccount": null
+    }
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="400: Invalid Format">
+  ```json
+  {
+    "success": false,
+    "error": {
+      "code": "INVALID_USERNAME_FORMAT",
+      "message": "Username can only contain letters, numbers, and underscores"
+    }
+  }
+  ```
+</ResponseField>
+
+## Error Codes
+
+<ResponseField name="400 Bad Request">
+  - `MISSING_REQUEST_BODY` - Request body required
+  - `INVALID_REQUEST_BODY` - Invalid JSON format
+  - `MISSING_REQUIRED_FIELDS` - Missing email/password
+  - `INVALID_USERNAME_FORMAT` - Invalid username format
+  - `INVALID_EMAIL_FORMAT` - Invalid email format
+  - `INVALID_PASSWORD_FORMAT` - Password requirements not met
+</ResponseField>
+
+<ResponseField name="409 Conflict">
+  - `USERNAME_ALREADY_TAKEN` - Username exists
+  - `EMAIL_ALREADY_REGISTERED` - Email exists
+  - `ORGANIZATION_SCOPE_CONFLICT` - Email/username exists under parent
+</ResponseField>

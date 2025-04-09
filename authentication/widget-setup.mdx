@@ -1,0 +1,236 @@
+---
+title: 'Widget Setup'
+description: 'Learn how to integrate and configure the Authiqa authentication widget'
+---
+
+
+### Widget Integration
+
+<CodeGroup>
+
+```html HTML
+<div id="authiqa"></div>
+<script
+  src="https://widget.authiqa.com"
+  defer
+  data-api-key="YOUR_API_KEY"
+  action="signin"
+></script>
+```
+
+```jsx React
+function LoginPage() {
+  return (
+    <div>
+      <div id="authiqa"></div>
+      <script
+        src="https://widget.authiqa.com"
+        defer
+        data-api-key="YOUR_API_KEY"
+        action="signin"
+      />
+    </div>
+  );
+}
+```
+
+```vue Vue
+<template>
+  <div>
+    <div id="authiqa"></div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'LoginPage',
+  mounted() {
+    const script = document.createElement('script');
+    script.src = 'https://widget.authiqa.com';
+    script.defer = true;
+    script.setAttribute('data-api-key', 'YOUR_API_KEY');
+    script.setAttribute('action', 'signin');
+    document.head.appendChild(script);
+  }
+}
+</script>
+```
+
+```svelte Svelte
+<script>
+  import { onMount } from 'svelte';
+
+  onMount(() => {
+    const script = document.createElement('script');
+    script.src = 'https://widget.authiqa.com';
+    script.defer = true;
+    script.setAttribute('data-api-key', 'YOUR_API_KEY');
+    script.setAttribute('action', 'signin');
+    document.head.appendChild(script);
+  });
+</script>
+
+<div id="authiqa"></div>
+```
+
+```typescript Angular
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-login',
+  template: '<div id="authiqa"></div>'
+})
+export class LoginComponent implements OnInit {
+  ngOnInit() {
+    const script = document.createElement('script');
+    script.src = 'https://widget.authiqa.com';
+    script.defer = true;
+    script.setAttribute('data-api-key', 'YOUR_API_KEY');
+    script.setAttribute('action', 'signin');
+    document.head.appendChild(script);
+  }
+}
+```
+
+</CodeGroup>
+
+## Available Actions
+
+The Authiqa widget supports multiple authentication actions:
+
+<CardGroup cols={2}>
+  <Card title="Sign In" icon="right-to-bracket">
+    ```html
+    <script
+      src="https://widget.authiqa.com"
+      defer
+      data-api-key="YOUR_API_KEY"
+      action="signin"
+    ></script>
+    <div id="authiqa"></div>
+    ```
+  </Card>
+  <Card title="Sign Up" icon="user-plus">
+    ```html
+    <script
+      src="https://widget.authiqa.com"
+      defer
+      data-api-key="YOUR_API_KEY"
+      action="signup"
+    ></script>
+    <div id="authiqa"></div>
+    ```
+  </Card>
+  <Card title="Email Verification" icon="envelope">
+    ```html
+    <script
+      src="https://widget.authiqa.com"
+      defer
+      data-api-key="YOUR_API_KEY"
+      action="verify"
+    ></script>
+    <div id="authiqa"></div>
+    ```
+  </Card>
+  <Card title="Resend emailConfirmation" icon="key">
+    ```html
+    <script
+      src="https://widget.authiqa.com"
+      defer
+      data-api-key="YOUR_API_KEY"
+      action="resend"
+    ></script>
+    <div id="authiqa"></div>
+
+    ```
+  </Card>
+  <Card title="Password Reset" icon="key">
+    ```html
+    <script
+      src="https://widget.authiqa.com"
+      defer
+      data-api-key="YOUR_API_KEY"
+      action="reset"
+    ></script>
+    <div id="authiqa"></div>
+
+    ```
+  </Card>
+  <Card title="Update Password" icon="key">
+    ```html
+    <script
+      src="https://widget.authiqa.com"
+      defer
+      data-api-key="YOUR_API_KEY"
+      action="update"
+    ></script>
+    <div id="authiqa"></div>
+
+    ```
+  </Card>
+</CardGroup>
+
+## Widget Configuration
+
+Configure the widget with these options:
+
+```javascript
+const widget = new AuthiqaWidget({
+  apiKey: 'YOUR_API_KEY',          // Required: Your Authiqa API key
+  container: 'authiqa'           // Required: Container element ID
+});
+```
+
+## Event Handling
+
+The widget emits various events you can listen for:
+
+```javascript
+// Success events
+widget.addEventListener('auth:success', (user) => {
+  console.log('Authentication successful:', user);
+  localStorage.setItem('authToken', user.token);
+});
+
+// Error events
+widget.addEventListener('auth:error', (error) => {
+  console.error('Authentication failed:', error);
+});
+
+// Verification events
+widget.addEventListener('verify:success', () => {
+  console.log('Email verification successful');
+});
+```
+
+## Response Handling
+
+### Success Response
+```javascript
+{
+  token: 'jwt_token_here',
+  user: {
+    userID: 'user_id',
+    email: 'user@example.com',
+    accountType: 'child',
+    parentAccount: 'parent_api_key'
+  }
+}
+```
+
+### Error Messages
+- Rate limiting: "Please wait X seconds before trying again"
+- Invalid credentials: "Invalid email or password"
+- Email verification: "Please verify your email address"
+- Account status: "Your account is not active"
+
+## Security Features
+
+- Rate limiting with 60-second cooldown
+- Automatic token storage
+- JWT-based authentication
+- Parent/child account verification
+
+<Card title="Need help?" icon="question">
+  If you encounter any issues, check our [troubleshooting guide](/features/troubleshooting) or contact support.
+</Card>

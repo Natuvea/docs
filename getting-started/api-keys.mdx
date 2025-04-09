@@ -1,0 +1,83 @@
+---
+title: 'API Keys'
+description: 'Generate and manage API keys for Authiqa integration'
+---
+
+API keys are required to authenticate your requests to Authiqa. Each key is unique to your organization and helps track usage.
+
+## Generate API Key
+
+<Steps>
+  <Step title="Access Dashboard">
+    Log in to your [Authiqa Dashboard](https://authiqa.com/signup)
+  </Step>
+
+  <Step title="Navigate to API Settings">
+    Go to **Settings** → **API Keys**
+  </Step>
+
+  <Step title="Get Your API Key">
+    Click the "Fetch the API Key" button
+    
+    Your API key will look like this:
+    ```bash
+    APK_a1b2c3d4e5f6g7h8i9j0_1234567890
+    ```
+  </Step>
+
+  <Step title="Save Key Securely">
+    Copy and store your API key securely - it won't be shown again
+  </Step>
+</Steps>
+
+<Warning>
+  Never share your API key or commit it to version control. Use environment variables to store it securely.
+</Warning>
+
+## API Key Usage
+
+Add your API key when initializing the Authiqa widget:
+
+```html
+<script
+  src="https://widget.authiqa.com"
+  defer
+  data-api-key="YOUR_API_KEY"
+  action="signin"
+></script>
+```
+
+
+## Key Management
+
+- **Parent Account Keys**: Used for managing child accounts and billing
+- **Child Account Keys**: Limited to authentication operations only
+- **Development Keys**: Available for testing (prefixed with `APK_DEV_`)
+
+## Security Best Practices
+
+<Check>
+  - [x] Store keys in environment variables
+  - [x] Use different keys for development and production
+  - [x] Rotate keys periodically
+  - [x] Monitor key usage for unusual activity
+</Check>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Install Widget"
+    icon="code"
+    href="/getting-started/widget-installation"
+  >
+    Add the authentication widget to your application
+  </Card>
+  <Card
+    title="Security Guide"
+    icon="shield-check"
+    href="/features/security"
+  >
+    Learn about securing your integration
+  </Card>
+</CardGroup>

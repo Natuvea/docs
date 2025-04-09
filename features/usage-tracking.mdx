@@ -1,0 +1,113 @@
+---
+title: 'Usage Tracking'
+description: 'Monitor and manage authentication operations and costs'
+---
+
+## Overview
+
+Authiqa tracks all authentication operations to:
+- Calculate costs
+- Monitor usage patterns
+- Prevent abuse
+- Manage billing
+
+## Operation Types
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key">
+    - Sign in attempts
+    - Password resets
+    - Email verifications
+  </Card>
+  <Card title="Account Management" icon="users">
+    - Child account creation
+    - Account updates
+    - List retrievals
+  </Card>
+</CardGroup>
+
+## Cost Structure
+
+Each operation has associated costs:
+
+```javascript
+{
+  "reads": 0.1415,  // per million reads
+  "writes": 0.705,  // per million writes
+  "margin": 0.40    // 40% service margin
+}
+```
+
+## Balance Management
+
+- Parent accounts start with $3.00 balance
+- Operations deduct from available balance
+- Child accounts use parent's balance
+- Balance updates in real-time
+
+## Usage Limits
+
+```javascript
+{
+  "rateLimits": {
+    "signIn": 5,        
+    "passwordReset": 1,  
+    "emailResend": 1    
+  }
+}
+```
+
+## Monitoring Usage
+
+Track usage through the dashboard:
+- Operation counts
+- Cost breakdown
+- Balance history
+- Active child accounts
+
+## Alerts and Notifications
+
+Automatic notifications for:
+- Low balance (75% used)
+- Critical balance (90% used)
+- Depleted balance
+- Unusual activity
+
+## API Response
+
+```javascript
+GET /parent/cost-analysis
+
+{
+  "data": {
+    "totalOperations": 1000,
+    "operationCounts": {
+      "signIn": 500,
+      "emailConfirmation": 200,
+      "passwordReset": 100
+    },
+    "costs": {
+      "total": 0.40,
+      "breakdown": {
+        "authentication": 0.25,
+        "childAccounts": 0.15
+      }
+    }
+  }
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Cost Management" icon="chart-line">
+    - Monitor usage patterns
+    - Set up balance alerts
+    - Review monthly reports
+  </Card>
+  <Card title="Operation Tracking" icon="list-check">
+    - Track operation types
+    - Monitor failed attempts
+    - Review usage spikes
+  </Card>
+</CardGroup>

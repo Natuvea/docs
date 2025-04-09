@@ -1,0 +1,192 @@
+---
+title: 'Resend Confirmation Email'
+description: 'Request a new email verification token'
+api: 'POST https://api.authiqa.com/auth/request-new-confirmation'
+---
+
+## Overview
+
+This endpoint allows users to request a new verification email if their previous token has expired or was lost. The API includes rate limiting and validation to prevent abuse.
+
+## API Details
+
+### Request Format
+
+<ParamField body="email" type="string" required>
+  Email address to resend verification to
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl -X POST https://api.authiqa.com/auth/request-new-confirmation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.authiqa.com/auth/request-new-confirmation', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'user@example.com'
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.authiqa.com/auth/request-new-confirmation',
+    json={
+        'email': 'user@example.com'
+    }
+)
+```
+
+```php PHP
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://api.authiqa.com/auth/request-new-confirmation');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'email' => 'user@example.com'
+]));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+```
+</RequestExample>
+
+## Try It Out
+
+<Note>
+Test the API by filling in your email address:
+</Note>
+
+<Card>
+  <ParamField path="email" placeholder="user@example.com" required>
+    Email address to receive verification link
+  </ParamField>
+
+  <Expandable title="Headers" defaultOpen>
+    <ParamField header="Content-Type" value="application/json" />
+  </Expandable>
+
+  <Button
+    onClick={() => {
+      alert('Sending request...');
+    }}
+  >
+    Send Request
+  </Button>
+</Card>
+
+## Process Flow
+
+<Steps>
+  <Step title="Request Validation">
+    - Validate request body and JSON format
+    - Check for required email field
+    - Validate email format
+  </Step>
+
+  <Step title="User Verification">
+    - Check if user exists
+    - Verify email status
+    - Check rate limiting (1-minute cooldown)
+  </Step>
+
+  <Step title="Token Generation">
+    - Generate new 12-character verification token
+    - Validate token format (uppercase letters and numbers)
+  </Step>
+
+  <Step title="Email Delivery">
+    - Update verification token in database
+    - Update lastVerificationTokenSentAt timestamp
+    - Send verification email with branding:
+      - Parent accounts: Authiqa branding
+      - Child accounts: Parent organization branding
+  </Step>
+</Steps>
+
+## Response Examples
+
+<ResponseField name="200: Success">
+```json
+{
+  "success": true,
+  "data": {
+    "message": "A new verification link has been sent to your email"
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="400: Invalid Request">
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_EMAIL_FORMAT",
+    "message": "Invalid email format"
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="429: Rate Limited">
+```json
+{
+  "success": false,
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Please wait 45 seconds before requesting a new verification link"
+  },
+  "headers": {
+    "X-RateLimit-Limit": "1",
+    "X-RateLimit-Remaining": "0",
+    "X-RateLimit-Reset": "1729616234"
+  }
+}
+```
+</ResponseField>
+
+## Error Codes
+
+<ResponseField name="400 Bad Request">
+  - `MISSING_REQUEST_BODY` - Request body required
+  - `INVALID_REQUEST_BODY` - Invalid JSON format
+  - `MISSING_REQUIRED_FIELDS` - Email field required
+  - `INVALID_EMAIL_FORMAT` - Invalid email format
+  - `EMAIL_ALREADY_VERIFIED` - Email already verified
+</ResponseField>
+
+<ResponseField name="404 Not Found">
+  - `USER_NOT_FOUND` - No account with provided email
+</ResponseField>
+
+<ResponseField name="429 Too Many Requests">
+  - `RATE_LIMIT_EXCEEDED` - Wait before requesting again
+</ResponseField>
+
+## Rate Limiting
+
+<Card title="Rate Limits" icon="shield">
+  - 1 request per minute per email
+  - Rate limit headers included in response:
+    ```bash
+    X-RateLimit-Limit: 1
+    X-RateLimit-Remaining: 0
+    X-RateLimit-Reset: <timestamp>
+    ```
+  - Cooldown period: 60 seconds
+</Card>
+
+<Note>
+Email verification links expire after 15 minutes. Users should request a new link if the original expires.
+</Note>

@@ -1,0 +1,69 @@
+---
+title: 'JWT Verification'
+description: 'Verify authentication tokens in your application'
+---
+
+## Understanding JWT Tokens
+
+When users authenticate through Authiqa, they receive a JWT token that contains:
+- User ID
+- Email
+- Account Type (parent/child)
+- API Key
+- Parent Account (for child accounts)
+
+## Token Storage
+
+The widget automatically handles token storage:
+```javascript
+// Tokens are automatically stored in localStorage
+- authiqa_token           // Main authentication token
+- authiqa_token_expiration  // Token expiration timestamp
+- userId                    // User's unique identifier
+```
+
+## Token Verification
+
+### Parent Accounts
+```javascript
+// Check if token exists
+const token = localStorage.getItem('authiqa_token');
+if (!token) {
+  // Redirect to login
+  window.location.href = '/login';
+}
+```
+
+### Child Accounts
+```javascript
+// For child accounts, also verify parent relationship
+const token = localStorage.getItem('authiqa_token');
+const parentSecret = localStorage.getItem('authiqa_parent_jwt_secret');
+
+if (!token || !parentSecret) {
+  // Redirect to login
+  window.location.href = '/login';
+}
+```
+
+## Security Considerations
+
+<CardGroup cols={2}>
+  <Card title="Token Expiration" icon="clock">
+    - Tokens expire after 24 hours
+    - Check expiration before operations
+    - Redirect to login when expired
+  </Card>
+  <Card title="Storage Security" icon="shield">
+    - Tokens stored in localStorage
+    - Clear on logout
+    - Encrypt sensitive data
+  </Card>
+</CardGroup>
+
+## Error Handling
+
+Common token verification errors:
+- `TOKEN_EXPIRED`: Token has expired
+- `INVALID_TOKEN`: Token is malformed
+- `PARENT_MISMATCH`: Parent-child relationship verification failed

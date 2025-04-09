@@ -1,0 +1,96 @@
+---
+title: 'Child Accounts'
+description: 'Manage and monitor child accounts under your parent account'
+---
+
+## Overview
+
+Child accounts allow organizations to create and manage sub-accounts that:
+- Inherit parent account settings
+- Use parent account's balance
+- Are monitored for usage and activity
+
+## Creating Child Accounts
+
+Child accounts are created through the widget using your parent API key:
+
+```html
+<script
+  src="https://widget.authiqa.com"
+  defer
+  data-api-key="YOUR_PARENT_API_KEY"
+  action="signup"
+></script>
+```
+
+## Account Requirements
+
+- Username (unique under parent account)
+- Email (unique under parent account)
+- Password (8+ characters with uppercase, lowercase, number, special char)
+- Parent's API key (automatically handled by widget)
+
+## Viewing Child Accounts
+
+Monitor your child accounts through the dashboard:
+
+```javascript
+GET /auth/child-accounts
+
+// Response
+{
+  "data": {
+    "stats": {
+      "total": 5,          // Total child accounts
+      "active": 3          // Active in last 30 days
+    },
+    "accounts": [
+      {
+        "username": "child1",
+        "email": "child1@example.com",
+        "lastSeen": "2024-04-08T10:30:00Z",
+        "registered": "2024-01-15T08:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+## Filtering and Search
+
+Search and filter child accounts by:
+- Email/username
+- Date range
+- Activity status
+
+## Security Features
+
+- Child accounts can't:
+  - Create other child accounts
+  - Access parent account settings
+  - Modify billing information
+  - List other child accounts
+
+- Rate limiting on:
+  - Account creation
+  - Password resets
+  - Email verification resends
+
+<Note>
+Child accounts require parent account to have sufficient balance for operations
+</Note>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Account Management" icon="users">
+    - Monitor account activity
+    - Review usage regularly
+    - Set up usage alerts
+  </Card>
+  <Card title="Security" icon="shield">
+    - Use strong passwords
+    - Enable email verification
+    - Monitor login attempts
+  </Card>
+</CardGroup>

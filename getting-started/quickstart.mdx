@@ -1,0 +1,92 @@
+---
+title: 'Quickstart'
+description: 'Get started with Authiqa in minutes'
+---
+
+This guide will help you integrate Authiqa authentication into your application.
+
+## Prerequisites
+- An Authiqa account
+- Your API key
+- A web application where you want to add authentication
+
+## Integration Steps
+
+<Steps>
+  <Step title="Add Container and Widget Script">
+    ```html
+    <!-- Add the container div -->
+    <div id="authiqa"></div>  <!-- This is the required container ID -->
+
+    <!-- Add the widget script -->
+    <script
+      src="https://widget.authiqa.com"
+      defer
+      data-api-key="YOUR_API_KEY"
+      action="signin"
+    ></script>
+    ```
+    The `action` attribute can be: `signin`, `signup`, `verify`, `reset`, `update`, or `resend`
+  </Step>
+
+  <Step title="Handle Authentication Events">
+    ```javascript
+    // Get widget instance
+    const widget = document.querySelector('script[data-api-key]');
+    
+    // Listen for authentication events
+    widget.addEventListener('auth:success', (user) => {
+      localStorage.setItem('authToken', user.token);
+      
+      // For child accounts, store parent JWT secret if needed
+      if (user.parentJwtSecret) {
+        localStorage.setItem('parentJwtSecret', user.parentJwtSecret);
+      }
+    });
+
+    widget.addEventListener('auth:error', (error) => {
+      console.error('Authentication error:', error);
+    });
+    ```
+  </Step>
+
+
+</Steps>
+
+## Widget Events
+
+The widget emits several events you can listen for:
+- `auth:success` - Authentication successful
+- `auth:error` - Authentication failed
+- `verify:success` - Email verification successful
+- `verify:error` - Email verification failed
+
+## Verification
+
+Test your integration by:
+1. Opening your application
+2. Clicking the login button
+3. Completing the authentication flow
+
+<Card title="Need detailed setup?" icon="wrench" href="/authentication/widget-setup">
+  Check our complete widget setup guide
+</Card>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Configure Widget"
+    icon="gear"
+    href="/authentication/configuration"
+  >
+    Customize the widget appearance and behavior
+  </Card>
+  <Card
+    title="Verify JWTs"
+    icon="shield-check"
+    href="/features/security"
+  >
+    Learn how to verify authentication tokens
+  </Card>
+</CardGroup>

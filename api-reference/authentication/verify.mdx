@@ -1,0 +1,155 @@
+---
+title: 'Email Verification'
+description: 'Verify user email addresses using confirmation tokens'
+api: 'GET https://api.authiqa.com/auth/confirm-email'
+---
+
+## Overview
+
+This endpoint confirms a user's email address using a verification token sent via email. The token validates the user's ownership of the email address and activates their account.
+
+## API Details
+
+### Query Parameters
+
+<ParamField query="token" type="string" required>
+  12-character verification token received in email
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.authiqa.com/auth/confirm-email?token=ABC123XYZ789" \
+  -H "Content-Type: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch(
+  'https://api.authiqa.com/auth/confirm-email?token=ABC123XYZ789',
+  {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+);
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.authiqa.com/auth/confirm-email',
+    params={'token': 'ABC123XYZ789'},
+    headers={'Content-Type': 'application/json'}
+)
+```
+
+```php PHP
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://api.authiqa.com/auth/confirm-email?token=ABC123XYZ789');
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+```
+</RequestExample>
+
+## Try It Out
+
+<Note>
+Test the API by providing your verification token:
+</Note>
+
+<Card>
+  <ParamField path="token" placeholder="ABC123XYZ789" required>
+    Verification token from email
+  </ParamField>
+
+  <Expandable title="Headers" defaultOpen>
+    <ParamField header="Content-Type" value="application/json" />
+  </Expandable>
+
+  <Button
+    onClick={() => {
+      alert('Sending request...');
+    }}
+  >
+    Send Request
+  </Button>
+</Card>
+
+## Process Flow
+
+<Steps>
+  <Step title="Token Validation">
+    - Check token presence in query parameters
+    - Validate token format (12 characters, uppercase letters and numbers)
+  </Step>
+
+  <Step title="User Lookup">
+    - Find user by verification token
+    - Verify user exists in system
+  </Step>
+
+  <Step title="Token Verification">
+    - Check token expiration (15-minute validity)
+    - Verify token hasn't been used
+  </Step>
+
+  <Step title="Account Activation">
+    - Mark email as verified
+    - Update account status
+  </Step>
+</Steps>
+
+## Response Examples
+
+<ResponseField name="200: Success">
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Email verified successfully"
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="400: Invalid Token">
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_TOKEN",
+    "message": "The provided token is invalid"
+  }
+}
+```
+</ResponseField>
+
+## Error Codes
+
+<ResponseField name="400 Bad Request">
+  - `INVALID_TOKEN` - Token format is invalid
+  - `INVALID_TOKEN_FORMAT` - Token must be 12 characters (A-Z, 0-9)
+  - `TOKEN_EXPIRED` - Token has expired (15-minute validity)
+  - `TOKEN_NOT_PROVIDED` - Missing token parameter
+  - `EMAIL_ALREADY_VERIFIED` - Email already verified
+</ResponseField>
+
+<ResponseField name="404 Not Found">
+  - `USER_NOT_FOUND` - No user found with provided token
+</ResponseField>
+
+## Notes
+
+<Card title="Token Validity" icon="clock">
+  - Tokens expire after 15 minutes
+  - Can only be used once
+  - Case-sensitive (uppercase only)
+</Card>
+
+<Card title="Rate Limiting" icon="shield">
+  - Limited to 1 request per minute per email
+  - Failed attempts are tracked
+</Card>

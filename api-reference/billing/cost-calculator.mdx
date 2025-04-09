@@ -1,0 +1,224 @@
+---
+title: 'Cost Analysis'
+description: 'Calculate AWS DynamoDB operation costs for parent and child accounts'
+api: 'GET https://api.authiqa.com/parent/cost-analysis'
+---
+
+## Overview
+
+This endpoint calculates detailed costs for all database operations, including both parent and child account activities. Only accessible to parent accounts.
+
+## API Details
+
+### Authentication
+
+<ParamField header="Authorization" type="string" required>
+  Bearer YOUR_JWT_TOKEN
+</ParamField>
+
+## Try It Out
+
+<Note>
+Test the API using your JWT token:
+</Note>
+
+<Card>
+  <Expandable title="Headers" defaultOpen>
+    <ParamField header="Authorization" required placeholder="Bearer YOUR_JWT_TOKEN" />
+    <ParamField header="Content-Type" value="application/json" />
+  </Expandable>
+
+  <Button
+    onClick={() => {
+      alert('Sending request...');
+    }}
+  >
+    Send Request
+  </Button>
+</Card>
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+curl -X GET https://api.authiqa.com/parent/cost-analysis \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.authiqa.com/parent/cost-analysis', {
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+  }
+});
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.authiqa.com/parent/cost-analysis',
+    headers={
+        'Authorization': 'Bearer YOUR_JWT_TOKEN'
+    }
+)
+```
+
+```php PHP
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://api.authiqa.com/parent/cost-analysis');
+curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Authorization: Bearer YOUR_JWT_TOKEN'
+));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+```
+</CodeGroup>
+
+## Response Format
+
+<ResponseField name="200: Success">
+```json
+{
+  "operationCounts": {
+    "parent": {
+      "emailConfirmation": 1,
+      "resendConfirmation": 0,
+      "resetPassword": 1,
+      "updatePassword": 1,
+      "signIn": 10,
+      "organizationUpdate": 2,
+      "organizationDetailsRetrieval": 5,
+      "childAccountsListRetrieval": 8,
+      "childAccounts": 2
+    },
+    "children": {
+      "emailConfirmation": 2,
+      "resendConfirmation": 1,
+      "resetPassword": 1,
+      "updatePassword": 1,
+      "signIn": 15
+    },
+    "totalAccounts": 2,
+    "totalOperationsCount": 50
+  },
+  "costs": {
+    "baseCost": 0.000425,
+    "margin": 0.00017,
+    "total": 0.000595,
+    "breakdown": {
+      "emailConfirmation": 0.0001,
+      "resendConfirmation": 0.00005,
+      "resetPassword": 0.00005,
+      "updatePassword": 0.00005,
+      "signIn": 0.0001,
+      "organizationUpdate": 0.00005,
+      "organizationDetailsRetrieval": 0.00005,
+      "childAccountsListRetrieval": 0.0001,
+      "childAccounts": 0.00007,
+      "costCalculator": 0.000005,
+      "IOassociatedCost": 0.00045
+    }
+  },
+  "balance": {
+    "accountBalance": 3.00,
+    "availableBalance": 2.999405,
+    "currentCharges": 0.000595,
+    "usagePercentage": 0.02,
+    "lowBalanceAlert": false
+  },
+  "currency": "USD"
+}
+```
+</ResponseField>
+
+## Operation Types
+
+<CodeGroup>
+```json DynamoDB Operations
+{
+  "emailConfirmation": { "reads": 2, "writes": 1 },
+  "resendConfirmation": { "reads": 1, "writes": 1 },
+  "resetPassword": { "reads": 1, "writes": 1 },
+  "updatePassword": { "reads": 1, "writes": 1 },
+  "childAccounts": { "reads": 2, "writes": 1 },
+  "signIn": { "reads": 2, "writes": 1 },
+  "organizationUpdate": { "reads": 1, "writes": 1 },
+  "organizationDetailsRetrieval": { "reads": 1, "writes": 1 },
+  "childAccountsListRetrieval": { "reads": 2, "writes": 1 }
+}
+```
+</CodeGroup>
+
+## Pricing Structure
+
+<CardGroup cols={2}>
+  <Card title="Base Costs" icon="database">
+    - Reads: $0.1415 per million
+    - Writes: $0.705 per million
+  </Card>
+  <Card title="Margin" icon="chart-line">
+    - 40% added to base cost
+    - Applied to all operations
+  </Card>
+</CardGroup>
+
+## Error Codes
+
+<ResponseField name="401 Unauthorized">
+  - No authorization token
+  - Invalid token
+  - Non-parent account access attempt
+</ResponseField>
+
+<ResponseField name="403 Forbidden">
+  - `INSUFFICIENT_BALANCE` - Account has insufficient balance
+</ResponseField>
+
+<ResponseField name="500 Internal Server Error">
+  - Failed to calculate costs
+  - Database operation errors
+</ResponseField>
+
+## Parent-Only Operations
+
+The following operations are exclusive to parent accounts:
+- Organization updates
+- Organization details retrieval
+- Child accounts list retrieval
+
+## Calculation Details
+
+<Steps>
+  <Step title="Base Cost">
+    Calculate raw DynamoDB operation costs:
+    ```typescript
+    baseCost = (reads * READ_PRICE + writes * WRITE_PRICE) / 1000000
+    ```
+  </Step>
+
+  <Step title="Margin">
+    Apply 40% margin to base cost:
+    ```typescript
+    margin = baseCost * 0.40
+    ```
+  </Step>
+
+  <Step title="Total">
+    Sum base cost and margin:
+    ```typescript
+    total = baseCost + margin
+    ```
+  </Step>
+</Steps>
+
+## Notes
+
+<Note>
+All costs are calculated with 6 decimal precision and returned in USD.
+</Note>
+
+<Warning>
+This endpoint is restricted to parent accounts only. Child accounts will receive a 401 Unauthorized response.
+</Warning>

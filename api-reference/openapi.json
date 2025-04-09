@@ -1,94 +1,142 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.0.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
+    "title": "Authiqa API",
+    "description": "API documentation for Authiqa authentication system",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.authiqa.com"
     }
   ],
-  "security": [
-    {
-      "bearerAuth": []
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token for authentication"
+      }
     }
-  ],
+  },
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+    "/auth/signup": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Create new user account",
+        "description": "Register a new user account (parent or child)",
+        "operationId": "signup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "email", "password"],
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_]+$",
+                    "maxLength": 30,
+                    "description": "Alphanumeric + underscore only, max 30 chars"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Valid email address"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "Password meeting security requirements"
+                  },
+                  "parentApiKey": {
+                    "type": "string",
+                    "pattern": "^APK_[a-f0-9]{32}_\\d+$",
+                    "description": "Required only for child account creation"
+                  }
+                }
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Account created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "userID": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "number"
+                        },
+                        "apiKey": {
+                          "type": "string"
+                        },
+                        "emailVerified": {
+                          "type": "boolean"
+                        },
+                        "parentAccount": {
+                          "type": "string"
+                        },
+                        "accountType": {
+                          "type": "string",
+                          "enum": ["parent", "child"]
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "MISSING_REQUEST_BODY",
+                            "INVALID_REQUEST_BODY",
+                            "MISSING_REQUIRED_FIELDS",
+                            "INVALID_USERNAME_FORMAT",
+                            "INVALID_EMAIL_FORMAT",
+                            "INVALID_PASSWORD_FORMAT"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -96,121 +144,1274 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/auth/signin": {
+      "post": {
+        "summary": "Sign in user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "parentApiKey": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string"
+                        },
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "userID": { "type": "string" },
+                            "email": { "type": "string" },
+                            "username": { "type": "string" },
+                            "accountType": { "type": "string" },
+                            "parentAccount": { "type": "string" },
+                            "apiKey": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/confirm-email": {
+      "get": {
+        "summary": "Verify email address",
+        "description": "Confirm user's email address using verification token",
+        "tags": ["Authentication"],
+        "operationId": "verifyEmail",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
+            "name": "token",
+            "in": "query",
             "required": true,
+            "description": "Email verification token (12 characters, uppercase letters and numbers)",
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "pattern": "^[A-Z0-9]{12}$"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "Email verified successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Email verified successfully"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_TOKEN",
+                            "INVALID_TOKEN_FORMAT",
+                            "TOKEN_EXPIRED",
+                            "TOKEN_NOT_PROVIDED",
+                            "EMAIL_ALREADY_VERIFIED"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
           }
         }
       }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
+    },
+    "/auth/request-new-confirmation": {
       "post": {
-        "description": "Information about a new plant added to the store",
+        "summary": "Resend confirmation email",
+        "description": "Request a new email verification token",
+        "tags": ["Authentication"],
         "requestBody": {
-          "description": "Plant added to the store",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email address to resend verification to"
+                  }
+                }
+              },
+              "example": {
+                "email": "user@example.com"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+            "description": "Confirmation email sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "A new verification link has been sent to your email"
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
           },
-          "message": {
-            "type": "string"
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "MISSING_REQUEST_BODY",
+                            "INVALID_REQUEST_BODY",
+                            "MISSING_REQUIRED_FIELDS",
+                            "INVALID_EMAIL_FORMAT",
+                            "EMAIL_ALREADY_VERIFIED"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": ["USER_NOT_FOUND"]
+                        },
+                        "message": {
+                          "type": "string",
+                          "example": "User not found"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": ["RATE_LIMIT_EXCEEDED"]
+                        },
+                        "message": {
+                          "type": "string",
+                          "example": "Please wait {remainingTime} seconds before requesting a new verification link"
+                        }
+                      }
+                    },
+                    "headers": {
+                      "X-RateLimit-Limit": {
+                        "schema": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      },
+                      "X-RateLimit-Remaining": {
+                        "schema": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      },
+                      "X-RateLimit-Reset": {
+                        "schema": {
+                          "type": "integer",
+                          "example": 1729616234
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+    "/auth/update-organization": {
+      "post": {
+        "summary": "Update organization details",
+        "description": "Update organization name, URL, and authentication URLs for white-labeling",
+        "tags": ["Organization"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "description": "Bearer token for authentication",
+            "schema": {
+              "type": "string",
+              "pattern": "^Bearer\\s[\\w-]+\\.[\\w-]+\\.[\\w-]+$"
+            },
+            "example": "Bearer YOUR_JWT_TOKEN"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["organizationName", "organizationUrl", "authUrls"],
+                "properties": {
+                  "organizationName": {
+                    "type": "string",
+                    "minLength": 4,
+                    "pattern": "^[A-Z]"
+                  },
+                  "organizationUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https?://"
+                  },
+                  "authUrls": {
+                    "type": "object",
+                    "required": [
+                      "signup",
+                      "signin",
+                      "verify",
+                      "reset",
+                      "update",
+                      "resend",
+                      "successful"
+                    ],
+                    "properties": {
+                      "signup": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "signin": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "verify": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "reset": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "update": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "resend": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "successful": {
+                        "type": "string",
+                        "format": "uri"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Organization details updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "organizationName": {
+                              "type": "string"
+                            },
+                            "organizationUrl": {
+                              "type": "string"
+                            },
+                            "authUrls": {
+                              "type": "object",
+                              "properties": {
+                                "signup": {
+                                  "type": "string"
+                                },
+                                "signin": {
+                                  "type": "string"
+                                },
+                                "verify": {
+                                  "type": "string"
+                                },
+                                "reset": {
+                                  "type": "string"
+                                },
+                                "update": {
+                                  "type": "string"
+                                },
+                                "resend": {
+                                  "type": "string"
+                                },
+                                "successful": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_ORGANIZATION_NAME",
+                            "INVALID_ORGANIZATION_URL",
+                            "INVALID_AUTH_URLS",
+                            "MISSING_REQUIRED_URLS"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/organization-details": {
+      "get": {
+        "summary": "Get organization details",
+        "description": "Retrieve authentication URLs for parent or child accounts",
+        "tags": ["Organization"],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Api-Key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^APK_[a-f0-9]{32}_\\d+$"
+            },
+            "description": "API key for authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "authUrls": {
+                          "type": "object",
+                          "properties": {
+                            "signin": {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "signup": {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "verify": {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "reset": {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "update": {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "resend": {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            "successful": {
+                              "type": "string",
+                              "format": "uri"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "MISSING_PARENT_API_KEY",
+                            "INVALID_PARENT_API_KEY_FORMAT",
+                            "INVALID_PARENT_ACCOUNT"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "const": "USER_NOT_FOUND"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/child-accounts": {
+      "get": {
+        "summary": "Get child accounts",
+        "description": "Retrieve and filter child accounts for parent organizations",
+        "tags": ["Organization"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search in username and email fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date for filtering",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date for filtering",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "lastKey",
+            "in": "query",
+            "description": "Pagination token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Child accounts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "stats": {
+                              "type": "object",
+                              "properties": {
+                                "total": {
+                                  "type": "integer"
+                                },
+                                "active": {
+                                  "type": "integer"
+                                }
+                              }
+                            },
+                            "accounts": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "username": {
+                                    "type": "string"
+                                  },
+                                  "email": {
+                                    "type": "string"
+                                  },
+                                  "lastSeen": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "registered": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                }
+                              }
+                            },
+                            "pagination": {
+                              "type": "object",
+                              "properties": {
+                                "limit": {
+                                  "type": "integer"
+                                },
+                                "hasMore": {
+                                  "type": "boolean"
+                                },
+                                "nextPageToken": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_DATE_FORMAT",
+                            "INVALID_LIMIT",
+                            "INVALID_PAGINATION_TOKEN"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "UNAUTHORIZED",
+                            "UNAUTHORIZED_ACCESS"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/update-password": {
+      "post": {
+        "summary": "Update password using reset token",
+        "description": "Update user password using a valid reset token",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token", "password"],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "Reset token received via email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "description": "New password meeting security requirements"
+                  },
+                  "parentApiKey": {
+                    "type": "string",
+                    "pattern": "^APK_[a-f0-9]{32}_\\d+$",
+                    "description": "Required for child accounts"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Password updated successfully"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "TOKEN_NOT_PROVIDED",
+                            "INVALID_TOKEN",
+                            "INVALID_PASSWORD_FORMAT",
+                            "MISSING_PARENT_API_KEY",
+                            "INVALID_PARENT_API_KEY_FORMAT"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Token expired or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": ["OTP_EXPIRED", "INVALID_OTP"]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parent/cost-analysis": {
+      "get": {
+        "summary": "Calculate operation costs",
+        "description": "Calculate AWS DynamoDB operation costs for parent and child accounts",
+        "tags": ["Billing"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cost calculation successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "operationCounts": {
+                      "type": "object",
+                      "properties": {
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "emailConfirmation": { "type": "number" },
+                            "resendConfirmation": { "type": "number" },
+                            "resetPassword": { "type": "number" },
+                            "updatePassword": { "type": "number" },
+                            "signIn": { "type": "number" },
+                            "organizationUpdate": { "type": "number" },
+                            "organizationDetailsRetrieval": { "type": "number" },
+                            "childAccountsListRetrieval": { "type": "number" },
+                            "childAccounts": { "type": "number" }
+                          }
+                        },
+                        "children": {
+                          "type": "object",
+                          "properties": {
+                            "emailConfirmation": { "type": "number" },
+                            "resendConfirmation": { "type": "number" },
+                            "resetPassword": { "type": "number" },
+                            "updatePassword": { "type": "number" },
+                            "signIn": { "type": "number" }
+                          }
+                        },
+                        "totalAccounts": { "type": "number" },
+                        "totalOperationsCount": { "type": "number" }
+                      }
+                    },
+                    "costs": {
+                      "type": "object",
+                      "properties": {
+                        "baseCost": { "type": "number" },
+                        "margin": { "type": "number" },
+                        "total": { "type": "number" },
+                        "breakdown": {
+                          "type": "object",
+                          "properties": {
+                            "emailConfirmation": { "type": "number" },
+                            "resendConfirmation": { "type": "number" },
+                            "resetPassword": { "type": "number" },
+                            "updatePassword": { "type": "number" },
+                            "signIn": { "type": "number" },
+                            "organizationUpdate": { "type": "number" },
+                            "organizationDetailsRetrieval": { "type": "number" },
+                            "childAccountsListRetrieval": { "type": "number" },
+                            "childAccounts": { "type": "number" },
+                            "costCalculator": { "type": "number" },
+                            "IOassociatedCost": { "type": "number" }
+                          }
+                        }
+                      }
+                    },
+                    "balance": {
+                      "type": "object",
+                      "properties": {
+                        "accountBalance": { "type": "number" },
+                        "availableBalance": { "type": "number" },
+                        "currentCharges": { "type": "number" },
+                        "usagePercentage": { "type": "number" },
+                        "lowBalanceAlert": { "type": "boolean" }
+                      }
+                    },
+                    "currency": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "UNAUTHORIZED",
+                            "INVALID_TOKEN",
+                            "NON_PARENT_ACCOUNT"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parent/billing-history": {
+      "get": {
+        "summary": "Get billing history",
+        "description": "Retrieve historical billing records for parent accounts",
+        "tags": ["Billing"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Start date in YYYY-MM format",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "End date in YYYY-MM format",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Billing history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "billingRecords": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "monthYear": {
+                                "type": "string",
+                                "example": "2024-01"
+                              },
+                              "totalAccounts": {
+                                "type": "integer"
+                              },
+                              "costAssociatedWithAccounts": {
+                                "type": "number",
+                                "format": "float"
+                              },
+                              "totalIOInteractions": {
+                                "type": "integer"
+                              },
+                              "costAssociatedWithIO": {
+                                "type": "number",
+                                "format": "float"
+                              },
+                              "totalFinalCost": {
+                                "type": "number",
+                                "format": "float"
+                              },
+                              "timestamp": {
+                                "type": "integer"
+                              }
+                            }
+                          }
+                        },
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "totalCost": {
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "averageMonthlySpend": {
+                              "type": "number",
+                              "format": "float"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "INVALID_DATE_FORMAT",
+                            "INVALID_DATE_RANGE",
+                            "INVALID_LIMIT"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "UNAUTHORIZED",
+                            "UNAUTHORIZED_ACCESS"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -1,0 +1,220 @@
+---
+title: 'Get Child Accounts'
+description: 'Retrieve and filter child accounts for parent organizations'
+api: 'GET https://api.authiqa.com/auth/child-accounts'
+---
+
+## Overview
+
+This endpoint allows parent accounts to retrieve a list of their child accounts with advanced filtering, search, and pagination capabilities.
+
+## Authentication
+
+<ParamField header="Authorization" type="string" required>
+  Bearer YOUR_JWT_TOKEN
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="search" type="string">
+  Search in username and email fields
+</ParamField>
+
+<ParamField query="startDate" type="string">
+  Start date for filtering (YYYY-MM-DD, ISO 8601, or timestamp)
+</ParamField>
+
+<ParamField query="endDate" type="string">
+  End date for filtering (YYYY-MM-DD, ISO 8601, or timestamp)
+</ParamField>
+
+<ParamField query="limit" type="number" default="50">
+  Items per page (1-100)
+</ParamField>
+
+<ParamField query="lastKey" type="string">
+  Pagination token from previous response
+</ParamField>
+
+## Try It Out
+
+<Note>
+Test the API by providing your parameters:
+</Note>
+
+<Card>
+  <ParamField query="search" placeholder="john">
+    Search term
+  </ParamField>
+
+  <ParamField query="startDate" placeholder="2024-01-01">
+    Start date
+  </ParamField>
+
+  <ParamField query="endDate" placeholder="2024-01-31">
+    End date
+  </ParamField>
+
+  <ParamField query="limit" placeholder="50">
+    Results per page
+  </ParamField>
+
+  <Expandable title="Headers" defaultOpen>
+    <ParamField header="Authorization" type="string" required placeholder="Bearer YOUR_JWT_TOKEN" />
+    <ParamField header="Content-Type" value="application/json" />
+  </Expandable>
+
+  <Button
+    onClick={() => {
+      alert('Sending request...');
+    }}
+  >
+    Send Request
+  </Button>
+</Card>
+
+## Date Format Support
+
+<CodeGroup>
+```bash Timestamp
+GET /auth/child-accounts?startDate=1704067200000&endDate=1706745600000
+```
+
+```bash YYYY-MM-DD
+GET /auth/child-accounts?startDate=2024-01-01&endDate=2024-01-31
+```
+
+```bash ISO 8601
+GET /auth/child-accounts?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z
+```
+</CodeGroup>
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     https://api.authiqa.com/auth/child-accounts
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.authiqa.com/auth/child-accounts', {
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+  }
+});
+
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.authiqa.com/auth/child-accounts',
+    headers={
+        'Authorization': 'Bearer YOUR_JWT_TOKEN'
+    }
+)
+```
+
+```php PHP
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://api.authiqa.com/auth/child-accounts');
+curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Authorization: Bearer YOUR_JWT_TOKEN'
+));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+```
+</CodeGroup>
+
+## Response Format
+
+<ResponseField name="200: Success">
+```json
+{
+  "success": true,
+  "data": {
+    "data": {
+      "stats": {
+        "total": 55,
+        "active": 10
+      },
+      "accounts": [
+        {
+          "username": "childuser1",
+          "email": "child1@example.com",
+          "lastSeen": "2024-01-29T15:48:38.609Z",
+          "registered": "2024-01-15T15:48:38.609Z"
+        }
+      ],
+      "pagination": {
+        "limit": 50,
+        "hasMore": true,
+        "nextPageToken": "base64_encoded_token"
+      }
+    }
+  }
+}
+```
+</ResponseField>
+
+## Error Responses
+
+<ResponseField name="400: Invalid Request">
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_DATE_FORMAT",
+    "message": "Start date must be a valid timestamp"
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="401: Unauthorized">
+```json
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Only parent accounts can access this data"
+  }
+}
+```
+</ResponseField>
+
+## Error Codes
+
+<ResponseField name="400 Bad Request">
+  - `INVALID_DATE_FORMAT` - Invalid date format provided
+  - `INVALID_LIMIT` - Limit must be between 1 and 100
+  - `INVALID_PAGINATION_TOKEN` - Invalid pagination token
+</ResponseField>
+
+<ResponseField name="401 Unauthorized">
+  - `UNAUTHORIZED` - Missing/invalid token
+  - `UNAUTHORIZED_ACCESS` - Non-parent account access attempt
+</ResponseField>
+
+## Pagination
+
+<Card title="Pagination Rules" icon="list-ol">
+  - Default limit: 50 items per page
+  - Maximum limit: 100 items per page
+  - `nextPageToken` provided when more results exist
+  - Use `lastKey` parameter with `nextPageToken` for next page
+</Card>
+
+## Notes
+
+<Note>
+Active accounts are those with login activity in the last 30 days.
+</Note>
+
+<Warning>
+This endpoint is only accessible to parent accounts. Child accounts will receive an unauthorized error.
+</Warning>

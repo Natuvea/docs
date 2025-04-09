@@ -1,0 +1,125 @@
+---
+title: 'Introduction'
+description: 'Complete authentication system with parent-child account management'
+---
+
+<img
+  className="block dark:hidden"
+  src="/logo/Auth-logo.png"
+  alt="Authiqa Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/logo/logo-dark.png"
+  alt="Authiqa Dark"
+/>
+
+## Overview
+
+Authiqa provides a complete authentication system with:
+
+- Drop-in authentication widget
+- Parent/child account hierarchy
+- Built-in usage tracking and billing
+- White-label support
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card
+    title="Simple Integration"
+    icon="code"
+    href="/getting-started/quickstart"
+  >
+    ```html
+    <script
+      src="https://widget.authiqa.com"
+      defer
+      data-api-key="YOUR_API_KEY"
+      action="signin"
+    ></script>
+    ```
+  </Card>
+  <Card
+    title="Multiple Auth Flows"
+    icon="arrow-right-arrow-left"
+    href="/authentication/widget-setup"
+  >
+    - Sign In/Sign Up
+    - Email Verification
+    - Password Reset/Update
+    - Child Account Creation
+  </Card>
+  <Card
+    title="Usage-Based Billing"
+    icon="chart-line"
+    href="/features/usage-tracking"
+  >
+    - Operation counting
+    - Real-time balance updates
+    - Usage limits
+    - Automated billing
+  </Card>
+  <Card
+    title="White-labeling"
+    icon="paintbrush"
+    href="/features/white-labeling"
+  >
+    - Custom domains
+    - Branded emails
+    - UI customization
+  </Card>
+</CardGroup>
+
+## How It Works
+
+1. **Parent Account Creation**
+   - Register organization
+   - Get API key
+   - Initial $3.00 balance
+
+2. **Widget Integration**
+   - Add widget script
+   - Configure actions
+   - Handle events
+
+3. **Child Account Management**
+   - Create child accounts
+   - Monitor usage
+   - Set permissions
+
+## Quick Example
+
+```html
+<!-- Basic Integration -->
+<div id="authiqa"></div>
+<script
+  src="https://widget.authiqa.com"
+  defer
+  data-api-key="YOUR_API_KEY"
+  action="signin"
+></script>
+```
+That's all you need to add authentication to your application! The widget automatically handles:
+- Token storage
+- Event handling
+- Error handling
+- Session management
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start"
+    icon="bolt"
+    href="/getting-started/quickstart"
+  >
+    Get up and running in minutes
+  </Card>
+  <Card
+    title="Create Account"
+    icon="user"
+    href="/getting-started/create-account"
+  >
+    Set up your Authiqa account
+  </Card>
+</CardGroup>

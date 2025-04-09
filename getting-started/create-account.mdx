@@ -1,0 +1,89 @@
+---
+title: 'Create Account'
+description: 'Create your Authiqa account to get started with authentication'
+---
+
+Getting started with Authiqa begins with creating your account. This guide will walk you through the process and explain the account types available.
+
+## Account Types
+
+Authiqa uses a parent-child account structure:
+
+<CardGroup cols={2}>
+  <Card title="Parent Account" icon="building">
+    - Main organization account
+    - Initial $3.00 balance
+    - Controls child accounts
+    - Manages billing/usage
+  </Card>
+  <Card title="Child Account" icon="user-group">
+    - Created via widget
+    - Uses parent's balance
+    - Tracked under parent
+    - Automatic configuration
+  </Card>
+</CardGroup>
+
+## Account Requirements
+
+### Parent Account
+- Username (unique, alphanumeric + underscore)
+- Email (unique)
+- Password (8+ characters with):
+  - One uppercase letter
+  - One lowercase letter
+  - One number
+  - One special character
+
+### Child Account
+Same requirements as parent account, but:
+- Created through widget integration
+- Parent API key handled automatically
+- No manual configuration needed
+
+## Creating a Parent Account
+
+<Steps>
+  <Step title="Register">
+    - Visit [Authiqa Dashboard](https://authiqa.com/signup)
+    - Enter username
+    - Enter email
+    - Create password
+  </Step>
+
+  <Step title="Verify Email">
+    Check inbox for verification link
+  </Step>
+
+  <Step title="Get API Key">
+    API key needed for widget integration
+  </Step>
+</Steps>
+
+## Creating Child Accounts
+
+Child accounts are created automatically through the widget when integrated with your parent API key. No manual setup required.
+
+<Note>
+The widget handles all child account creation using the parent's API key configured during integration.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Get API Key"
+    icon="key"
+    href="/getting-started/api-keys"
+  >
+    Generate your API key
+  </Card>
+  <Card
+    title="Widget Setup"
+    icon="code"
+    href="/authentication/widget-setup"
+  >
+    Add authentication widget
+  </Card>
+</CardGroup>
+```

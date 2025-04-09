@@ -1,35 +1,40 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Authiqa Documentation",
   "colors": {
-    "primary": "#16A34A",
+    "primary": "#0D9373",
     "light": "#07C983",
-    "dark": "#15803D"
+    "dark": "#0D9373"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/Auth-logo.png",
   "navigation": {
     "tabs": [
       {
         "tab": "Guides",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Getting Started",
             "pages": [
-              "introduction",
-              "quickstart",
-              "development"
+              "getting-started/introduction",
+              "getting-started/quickstart",
+              "getting-started/create-account",
+              "getting-started/api-keys"
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Authentication",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "authentication/widget-setup",
+              "authentication/jwt-verification"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/white-labeling",
+              "features/child-accounts",
+              "features/usage-tracking"
             ]
           }
         ]
@@ -38,58 +43,59 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "API Documentation",
+            "group": "Overview",
             "pages": [
               "api-reference/introduction"
             ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "Authentication APIs",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/authentication/signin",
+              "api-reference/authentication/signup",
+              "api-reference/authentication/verify",
+              "api-reference/authentication/resend",
+              "api-reference/authentication/reset",
+              "api-reference/authentication/update"
+            ]
+          },
+          {
+            "group": "Organization APIs",
+            "pages": [
+              "api-reference/organization/organization",
+              "api-reference/organization/organization-details",
+              "api-reference/organization/child-accounts"
+            ]
+          },
+          {
+            "group": "Billing APIs",
+            "pages": [
+              "api-reference/billing/billing-history",
+              "api-reference/billing/cost-calculator"
             ]
           }
         ]
       }
     ],
     "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
+      
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/Auth-logo.png",
+    "dark": "/logo/logo-dark.png"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "https://authiqa.com/support"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "href": "https://authiqa.com/"
     }
   },
   "footer": {
@@ -98,5 +104,18 @@
       "github": "https://github.com/mintlify",
       "linkedin": "https://linkedin.com/company/mintlify"
     }
+  },
+  "api": {
+    "baseUrl": "https://api.authiqa.com",
+    "auth": {
+      "method": "none"
+    },
+    "playground": {
+      "enabled": true,
+      "mode": "show"  
+    }
+  },
+  "openapi": {
+    "path": "api-reference/openapi.json" 
   }
 }

@@ -1,33 +1,82 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Reference'
+description: 'Complete API documentation for Authiqa authentication system'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Overview
 
-## Welcome
-
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
-
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+Authiqa provides a RESTful API for authentication and user management. All API requests are made to endpoints beginning with: `https://api.authiqa.com/auth/`
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All API endpoints require authentication using either:
+- API Key (for widget integrations)
+- JWT Token (for authenticated requests)
+
+
+
+Add your API key to requests using the `X-Api-Key` header:
+
+```bash
+curl -H "X-Api-Key: YOUR_API_KEY" https://api.authiqa.com/auth/signup
+```
+
+## Request Format
+
+All requests should be made with Content-Type: `application/json`
+
+## Response Format
+
+All API responses come in standard format:
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
+{
+  "success": true,
+  "data": {
+    // Response data
   }
-]
+}
 ```
+
+Or for errors:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable message"
+  }
+}
+```
+
+## Common Error Codes
+
+<ResponseField name="400" type="Bad Request">
+  - `MISSING_REQUEST_BODY` - Request body is required
+  - `INVALID_REQUEST_BODY` - Invalid JSON in request body
+  - `MISSING_REQUIRED_FIELDS` - Required fields are missing
+  - `INVALID_API_KEY_FORMAT` - API key format is invalid
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  - `INVALID_API_KEY` - API key is invalid or expired
+  - `INVALID_TOKEN` - JWT token is invalid or expired
+</ResponseField>
+
+<ResponseField name="403" type="Forbidden">
+  - `INSUFFICIENT_BALANCE` - Account has insufficient balance
+  - `EMAIL_NOT_VERIFIED` - Email verification required
+  - `ACCOUNT_INACTIVE` - Account is not active
+</ResponseField>
+
+## Rate Limiting
+
+API requests are limited to:
+- Sign in: 5 attempts per minute
+- Password reset: 1 request per minute
+- Email verification resend: 1 request per minute
+
+<Card title="Need Help?" icon="question-circle">
+  For additional support, contact us at support@authiqa.com
+</Card>
