@@ -1,37 +1,50 @@
 ---
-title: 'API Keys'
-description: 'Generate and manage API keys for Authiqa integration'
+title: 'Credentials'
+description: 'Manage Credentials for Authiqa integration'
 ---
 
 API keys are required to authenticate your requests to Authiqa. Each key is unique to your organization and helps track usage.
 
-## Generate API Key
+## Generate API Key and JWT Secret
 
 <Steps>
   <Step title="Access Dashboard">
     Log in to your [Authiqa Dashboard](https://authiqa.com/signup)
   </Step>
 
-  <Step title="Navigate to API Settings">
-    Go to **Settings** → **API Keys**
+  <Step title="Navigate to Credentials Page">
+    Click on "Credentials" in the navigation bar at the top
   </Step>
 
-  <Step title="Get Your API Key">
-    Click the "Fetch the API Key" button
+  <Step title="View Your Credentials">
+    You will find two secure credentials:
     
-    Your API key will look like this:
+    **API Key:**
     ```bash
-    APK_a1b2c3d4e5f6g7h8i9j0_1234567890
+    •••••••••••••••••••••••• (Hidden by default)
     ```
+    - Show/Hide button to reveal or hide the key
+    - Copy button to copy to clipboard
+    
+    **JWT Secret:**
+    ```bash
+    •••••••••••••••••••••••• (Hidden by default)
+    ```
+    - Show/Hide button to reveal or hide the secret
+    - Copy button to copy to clipboard
+    
+    <Note>
+    When copying either credential, a "Copied to clipboard" message will appear at the top of the page
+    </Note>
   </Step>
 
-  <Step title="Save Key Securely">
-    Copy and store your API key securely - it won't be shown again
+  <Step title="Save Keys Securely">
+    Copy and store both credentials securely - they won't be shown in plaintext by default
   </Step>
 </Steps>
 
 <Warning>
-  Never share your API key or commit it to version control. Use environment variables to store it securely.
+  Never share your API key or JWT secret or commit them to version control. Use environment variables to store them securely.
 </Warning>
 
 ## API Key Usage
