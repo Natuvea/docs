@@ -318,8 +318,9 @@ widget.on('verify:success', () => {
 
 ### HTML Examples for Different Actions
 
-```html
-<!-- Sign In -->
+<CodeGroup>
+
+```html Sign In
 <div id="authiqa"></div>
 <script 
     defer
@@ -327,8 +328,9 @@ widget.on('verify:success', () => {
     data-api-key="YOUR_API_KEY"
     action="signin"
 ></script>
+```
 
-<!-- Sign Up with Additional Options -->
+```html Sign Up
 <div id="authiqa"></div>
 <script 
     defer
@@ -340,8 +342,9 @@ widget.on('verify:success', () => {
     notificationSettings="https://your-site.com/notifications"
     buttonName="Create Account"
 ></script>
+```
 
-<!-- Password Reset -->
+```html Password Reset
 <div id="authiqa"></div>
 <script 
     defer
@@ -349,8 +352,9 @@ widget.on('verify:success', () => {
     data-api-key="YOUR_API_KEY"
     action="reset"
 ></script>
+```
 
-<!-- Email Verification -->
+```html Email Verify
 <div id="authiqa"></div>
 <script 
     defer
@@ -358,8 +362,9 @@ widget.on('verify:success', () => {
     data-api-key="YOUR_API_KEY"
     action="verify"
 ></script>
+```
 
-<!-- Password Update -->
+```html Password Update
 <div id="authiqa"></div>
 <script 
     defer
@@ -367,8 +372,9 @@ widget.on('verify:success', () => {
     data-api-key="YOUR_API_KEY"
     action="update"
 ></script>
+```
 
-<!-- Resend Verification Email -->
+```html Resend Verification
 <div id="authiqa"></div>
 <script 
     defer
@@ -377,3 +383,5 @@ widget.on('verify:success', () => {
     action="resend"
 ></script>
 ```
+
+</CodeGroup>
