@@ -11,9 +11,9 @@ description: 'Learn how to integrate and configure the Authiqa authentication wi
 ```html HTML
 <div id="authiqa"></div>
 <script 
-src="https://widget.authiqa.com"
     defer
-        data-api-key="YOUR_API_KEY"
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
     action="signin"
 ></script>
 ```
@@ -104,6 +104,146 @@ export default {
 </script>
 ```
 
+```typescript Angular
+// authiqa-widget.component.ts
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+
+@Component({
+    selector: 'app-authiqa-widget',
+    template: '<div id="authiqa"></div>'
+})
+export class AuthiqaWidgetComponent implements OnInit, OnDestroy {
+    @Input() apiKey!: string;
+    @Input() action: string = 'signin';
+    @Input() theme?: string;
+    @Input() disableStyles?: boolean;
+    @Input() termsAndConditions?: string;
+    @Input() privacy?: string;
+    @Input() notificationSettings?: string;
+    @Input() buttonName?: string;
+
+    private script?: HTMLScriptElement;
+
+    ngOnInit() {
+        this.script = document.createElement('script');
+        this.script.src = 'https://widget.authiqa.com';
+        this.script.defer = true;
+        this.script.setAttribute('data-api-key', this.apiKey);
+        this.script.setAttribute('action', this.action);
+        
+        if (this.theme) this.script.setAttribute('theme', this.theme);
+        if (this.disableStyles) this.script.setAttribute('disable-styles', 'true');
+        if (this.termsAndConditions) this.script.setAttribute('termsAndConditions', this.termsAndConditions);
+        if (this.privacy) this.script.setAttribute('privacy', this.privacy);
+        if (this.notificationSettings) this.script.setAttribute('notificationSettings', this.notificationSettings);
+        if (this.buttonName) this.script.setAttribute('buttonName', this.buttonName);
+        
+        document.body.appendChild(this.script);
+    }
+
+    ngOnDestroy() {
+        if (this.script) {
+            document.body.removeChild(this.script);
+        }
+    }
+}
+```
+
+```typescript Next.js
+// components/AuthiqaWidget.tsx
+'use client';
+
+import { useEffect } from 'react';
+
+interface AuthiqaWidgetProps {
+    apiKey: string;
+    action?: string;
+    theme?: 'light' | 'dark';
+    disableStyles?: boolean;
+    termsAndConditions?: string;
+    privacy?: string;
+    notificationSettings?: string;
+    buttonName?: string;
+}
+
+export default function AuthiqaWidget({
+    apiKey,
+    action = 'signin',
+    theme,
+    disableStyles,
+    termsAndConditions,
+    privacy,
+    notificationSettings,
+    buttonName
+}: AuthiqaWidgetProps) {
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://widget.authiqa.com';
+        script.defer = true;
+        script.setAttribute('data-api-key', apiKey);
+        script.setAttribute('action', action);
+        
+        if (theme) script.setAttribute('theme', theme);
+        if (disableStyles) script.setAttribute('disable-styles', 'true');
+        if (termsAndConditions) script.setAttribute('termsAndConditions', termsAndConditions);
+        if (privacy) script.setAttribute('privacy', privacy);
+        if (notificationSettings) script.setAttribute('notificationSettings', notificationSettings);
+        if (buttonName) script.setAttribute('buttonName', buttonName);
+        
+        document.body.appendChild(script);
+        
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
+
+    return <div id="authiqa" />;
+}
+```
+
+```svelte Svelte
+<!-- AuthiqaWidget.svelte -->
+<script>
+    export let apiKey;
+    export let action = 'signin';
+    export let theme = undefined;
+    export let disableStyles = undefined;
+    export let termsAndConditions = undefined;
+    export let privacy = undefined;
+    export let notificationSettings = undefined;
+    export let buttonName = undefined;
+
+    import { onMount, onDestroy } from 'svelte';
+
+    let scriptElement;
+
+    onMount(() => {
+        scriptElement = document.createElement('script');
+        scriptElement.src = 'https://widget.authiqa.com';
+        scriptElement.defer = true;
+        scriptElement.setAttribute('data-api-key', apiKey);
+        scriptElement.setAttribute('action', action);
+        
+        if (theme) scriptElement.setAttribute('theme', theme);
+        if (disableStyles) scriptElement.setAttribute('disable-styles', 'true');
+        if (termsAndConditions) scriptElement.setAttribute('termsAndConditions', termsAndConditions);
+        if (privacy) scriptElement.setAttribute('privacy', privacy);
+        if (notificationSettings) scriptElement.setAttribute('notificationSettings', notificationSettings);
+        if (buttonName) scriptElement.setAttribute('buttonName', buttonName);
+        
+        document.body.appendChild(scriptElement);
+    });
+
+    onDestroy(() => {
+        if (scriptElement) {
+            document.body.removeChild(scriptElement);
+        }
+    });
+</script>
+
+<div id="authiqa"></div>
+```
+
 </CodeGroup>
 
 ## Configuration Options
@@ -174,4 +314,66 @@ widget.on('widget:error', (error) => {
 widget.on('verify:success', () => {
   console.log('Email verification successful');
 });
+```
+
+### HTML Examples for Different Actions
+
+```html
+<!-- Sign In -->
+<div id="authiqa"></div>
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="signin"
+></script>
+
+<!-- Sign Up with Additional Options -->
+<div id="authiqa"></div>
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="signup"
+    termsAndConditions="https://your-site.com/terms"
+    privacy="https://your-site.com/privacy"
+    notificationSettings="https://your-site.com/notifications"
+    buttonName="Create Account"
+></script>
+
+<!-- Password Reset -->
+<div id="authiqa"></div>
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="reset"
+></script>
+
+<!-- Email Verification -->
+<div id="authiqa"></div>
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="verify"
+></script>
+
+<!-- Password Update -->
+<div id="authiqa"></div>
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="update"
+></script>
+
+<!-- Resend Verification Email -->
+<div id="authiqa"></div>
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="resend"
+></script>
 ```
