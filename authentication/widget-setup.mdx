@@ -10,227 +10,168 @@ description: 'Learn how to integrate and configure the Authiqa authentication wi
 
 ```html HTML
 <div id="authiqa"></div>
-<script
-  src="https://widget.authiqa.com"
-  defer
-  data-api-key="YOUR_API_KEY"
-  action="signin"
+<script 
+src="https://widget.authiqa.com"
+    defer
+        data-api-key="YOUR_API_KEY"
+    action="signin"
 ></script>
 ```
 
 ```jsx React
-function LoginPage() {
-  return (
-    <div>
-      <div id="authiqa"></div>
-      <script
-        src="https://widget.authiqa.com"
-        defer
-        data-api-key="YOUR_API_KEY"
-        action="signin"
-      />
-    </div>
-  );
-}
+import { useEffect } from 'react';
+
+const AuthiqaWidget = ({ 
+    apiKey, 
+    action = 'signin',
+    theme,
+    disableStyles,
+    termsAndConditions,
+    privacy,
+    notificationSettings,
+    buttonName 
+}) => {
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://widget.authiqa.com';
+        script.defer = true;
+        script.setAttribute('data-api-key', apiKey);
+        script.setAttribute('action', action);
+        
+        if (theme) script.setAttribute('theme', theme);
+        if (disableStyles) script.setAttribute('disable-styles', 'true');
+        if (termsAndConditions) script.setAttribute('termsAndConditions', termsAndConditions);
+        if (privacy) script.setAttribute('privacy', privacy);
+        if (notificationSettings) script.setAttribute('notificationSettings', notificationSettings);
+        if (buttonName) script.setAttribute('buttonName', buttonName);
+        
+        document.body.appendChild(script);
+        
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
+
+    return <div id="authiqa" />;
+};
 ```
 
 ```vue Vue
 <template>
-  <div>
     <div id="authiqa"></div>
-  </div>
 </template>
 
 <script>
 export default {
-  name: 'LoginPage',
-  mounted() {
-    const script = document.createElement('script');
-    script.src = 'https://widget.authiqa.com';
-    script.defer = true;
-    script.setAttribute('data-api-key', 'YOUR_API_KEY');
-    script.setAttribute('action', 'signin');
-    document.head.appendChild(script);
-  }
+    name: 'AuthiqaWidget',
+    props: {
+        apiKey: {
+            type: String,
+            required: true
+        },
+        action: {
+            type: String,
+            default: 'signin'
+        },
+        theme: String,
+        disableStyles: Boolean,
+        termsAndConditions: String,
+        privacy: String,
+        notificationSettings: String,
+        buttonName: String
+    },
+    mounted() {
+        const script = document.createElement('script');
+        script.src = 'https://widget.authiqa.com';
+        script.defer = true;
+        script.setAttribute('data-api-key', this.apiKey);
+        script.setAttribute('action', this.action);
+        
+        if (this.theme) script.setAttribute('theme', this.theme);
+        if (this.disableStyles) script.setAttribute('disable-styles', 'true');
+        if (this.termsAndConditions) script.setAttribute('termsAndConditions', this.termsAndConditions);
+        if (this.privacy) script.setAttribute('privacy', this.privacy);
+        if (this.notificationSettings) script.setAttribute('notificationSettings', this.notificationSettings);
+        if (this.buttonName) script.setAttribute('buttonName', this.buttonName);
+        
+        document.body.appendChild(script);
+    },
+    beforeDestroy() {
+        const script = document.querySelector(`script[data-api-key="${this.apiKey}"]`);
+        if (script) document.body.removeChild(script);
+    }
 }
 </script>
-```
-
-```svelte Svelte
-<script>
-  import { onMount } from 'svelte';
-
-  onMount(() => {
-    const script = document.createElement('script');
-    script.src = 'https://widget.authiqa.com';
-    script.defer = true;
-    script.setAttribute('data-api-key', 'YOUR_API_KEY');
-    script.setAttribute('action', 'signin');
-    document.head.appendChild(script);
-  });
-</script>
-
-<div id="authiqa"></div>
-```
-
-```typescript Angular
-import { Component, OnInit } from '@angular/core';
-
-@Component({
-  selector: 'app-login',
-  template: '<div id="authiqa"></div>'
-})
-export class LoginComponent implements OnInit {
-  ngOnInit() {
-    const script = document.createElement('script');
-    script.src = 'https://widget.authiqa.com';
-    script.defer = true;
-    script.setAttribute('data-api-key', 'YOUR_API_KEY');
-    script.setAttribute('action', 'signin');
-    document.head.appendChild(script);
-  }
-}
 ```
 
 </CodeGroup>
 
-## Available Actions
+## Configuration Options
 
-The Authiqa widget supports multiple authentication actions:
+The widget supports these configuration attributes:
 
-<CardGroup cols={2}>
-  <Card title="Sign In" icon="right-to-bracket">
-    ```html
-    <script
-      src="https://widget.authiqa.com"
-      defer
-      data-api-key="YOUR_API_KEY"
-      action="signin"
-    ></script>
-    <div id="authiqa"></div>
-    ```
-  </Card>
-  <Card title="Sign Up" icon="user-plus">
-    ```html
-    <script
-      src="https://widget.authiqa.com"
-      defer
-      data-api-key="YOUR_API_KEY"
-      action="signup"
-    ></script>
-    <div id="authiqa"></div>
-    ```
-  </Card>
-  <Card title="Email Verification" icon="envelope">
-    ```html
-    <script
-      src="https://widget.authiqa.com"
-      defer
-      data-api-key="YOUR_API_KEY"
-      action="verify"
-    ></script>
-    <div id="authiqa"></div>
-    ```
-  </Card>
-  <Card title="Resend emailConfirmation" icon="key">
-    ```html
-    <script
-      src="https://widget.authiqa.com"
-      defer
-      data-api-key="YOUR_API_KEY"
-      action="resend"
-    ></script>
-    <div id="authiqa"></div>
+### Required Attributes
+- `data-api-key`: Your API key
+- `action`: Authentication action (`signin`, `signup`, `reset`, `update`, `verify`, `resend`)
+- `defer`: For proper script loading
 
-    ```
-  </Card>
-  <Card title="Password Reset" icon="key">
-    ```html
-    <script
-      src="https://widget.authiqa.com"
-      defer
-      data-api-key="YOUR_API_KEY"
-      action="reset"
-    ></script>
-    <div id="authiqa"></div>
+### Optional Attributes
+- `theme`: `"light"` (default) or `"dark"`
+- `disable-styles`: `"true"` or `"false"` (default)
+- `termsAndConditions`: URL for terms and conditions page
+- `privacy`: URL for privacy policy
+- `notificationSettings`: URL for notification settings
+- `buttonName`: Custom text for submit button
 
-    ```
-  </Card>
-  <Card title="Update Password" icon="key">
-    ```html
-    <script
-      src="https://widget.authiqa.com"
-      defer
-      data-api-key="YOUR_API_KEY"
-      action="update"
-    ></script>
-    <div id="authiqa"></div>
+### Theme Examples
 
-    ```
-  </Card>
-</CardGroup>
+```html
+<!-- Light theme (default) -->
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="signin"
+></script>
 
-## Widget Configuration
+<!-- Dark theme -->
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="signin"
+    theme="dark"
+></script>
 
-Configure the widget with these options:
-
-```javascript
-const widget = new AuthiqaWidget({
-  apiKey: 'YOUR_API_KEY',          // Required: Your Authiqa API key
-  container: 'authiqa'           // Required: Container element ID
-});
+<!-- Custom styling (disable default styles) -->
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="signin"
+    disable-styles="true"
+></script>
 ```
 
 ## Event Handling
 
-The widget emits various events you can listen for:
-
 ```javascript
 // Success events
-widget.addEventListener('auth:success', (user) => {
-  console.log('Authentication successful:', user);
-  localStorage.setItem('authToken', user.token);
+widget.on('widget:success', (data) => {
+  console.log('Authentication successful:', data);
+  // Tokens are automatically stored in localStorage:
+  // - authiqa_token: JWT access token
+  // - authiqa_token_expiration: Token expiration
+  // - authiqa_parent_jwt_secret: Parent JWT secret (for child accounts)
 });
 
-// Error events
-widget.addEventListener('auth:error', (error) => {
+// Error events  
+widget.on('widget:error', (error) => {
   console.error('Authentication failed:', error);
 });
 
 // Verification events
-widget.addEventListener('verify:success', () => {
+widget.on('verify:success', () => {
   console.log('Email verification successful');
 });
 ```
-
-## Response Handling
-
-### Success Response
-```javascript
-{
-  token: 'jwt_token_here',
-  user: {
-    userID: 'user_id',
-    email: 'user@example.com',
-    accountType: 'child',
-    parentAccount: 'parent_api_key'
-  }
-}
-```
-
-### Error Messages
-- Rate limiting: "Please wait X seconds before trying again"
-- Invalid credentials: "Invalid email or password"
-- Email verification: "Please verify your email address"
-- Account status: "Your account is not active"
-
-## Security Features
-
-- Rate limiting with 60-second cooldown
-- Automatic token storage
-- JWT-based authentication
-- Parent/child account verification
-
-<Card title="Need help?" icon="question">
-  If you encounter any issues, check our [troubleshooting guide](/features/troubleshooting) or contact support.
-</Card>

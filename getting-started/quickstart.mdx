@@ -16,41 +16,63 @@ This guide will help you integrate Authiqa authentication into your application.
   <Step title="Add Container and Widget Script">
     ```html
     <!-- Add the container div -->
-    <div id="authiqa"></div>  <!-- This is the required container ID -->
+    <div id="authiqa"></div>
 
     <!-- Add the widget script -->
-    <script
-      src="https://widget.authiqa.com"
-      defer
-      data-api-key="YOUR_API_KEY"
-      action="signin"
+    <script 
+src="https://widget.authiqa.com"
+        defer
+                data-api-key="YOUR_API_KEY"
+        action="signin"
     ></script>
     ```
-    The `action` attribute can be: `signin`, `signup`, `verify`, `reset`, `update`, or `resend`
+    The `action` attribute can be: `signin`, `signup`, `reset`, `update`, `verify`, or `resend`
+  </Step>
+
+  <Step title="Configure Theme (Optional)">
+    ```html
+    <!-- Dark theme -->
+    <script 
+        defer
+        src="https://widget.authiqa.com"
+        data-api-key="YOUR_API_KEY"
+        action="signin"
+        theme="dark"
+    ></script>
+
+    <!-- Custom styling -->
+    <script 
+        defer
+        src="https://widget.authiqa.com"
+        data-api-key="YOUR_API_KEY"
+        action="signin"
+        disable-styles="true"
+    ></script>
+    ```
   </Step>
 
   <Step title="Handle Authentication Events">
     ```javascript
-    // Get widget instance
-    const widget = document.querySelector('script[data-api-key]');
-    
-    // Listen for authentication events
-    widget.addEventListener('auth:success', (user) => {
-      localStorage.setItem('authToken', user.token);
-      
-      // For child accounts, store parent JWT secret if needed
-      if (user.parentJwtSecret) {
-        localStorage.setItem('parentJwtSecret', user.parentJwtSecret);
-      }
+    // Success events
+    widget.on('widget:success', (data) => {
+      console.log('Authentication successful:', data);
+      // Tokens are automatically stored in localStorage:
+      // - authiqa_token: JWT access token
+      // - authiqa_token_expiration: Token expiration
+      // - authiqa_parent_jwt_secret: Parent JWT secret
     });
 
-    widget.addEventListener('auth:error', (error) => {
-      console.error('Authentication error:', error);
+    // Error events  
+    widget.on('widget:error', (error) => {
+      console.error('Authentication failed:', error);
+    });
+
+    // Verification events
+    widget.on('verify:success', () => {
+      console.log('Email verification successful');
     });
     ```
   </Step>
-
-
 </Steps>
 
 ## Widget Events
