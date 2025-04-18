@@ -29,7 +29,8 @@ const AuthiqaWidget = ({
     termsAndConditions,
     privacy,
     notificationSettings,
-    buttonName 
+    buttonName,
+    messages // Add messages prop
 }) => {
     useEffect(() => {
         const script = document.createElement('script');
@@ -44,6 +45,7 @@ const AuthiqaWidget = ({
         if (privacy) script.setAttribute('privacy', privacy);
         if (notificationSettings) script.setAttribute('notificationSettings', notificationSettings);
         if (buttonName) script.setAttribute('buttonName', buttonName);
+        if (messages) script.setAttribute('data-messages', JSON.stringify(messages));
         
         document.body.appendChild(script);
         
@@ -54,6 +56,18 @@ const AuthiqaWidget = ({
 
     return <div id="authiqa" />;
 };
+
+// Usage example:
+const messages = {
+    signinSuccess: "Welcome back! Redirecting you to dashboard...",
+    signinLoading: "Authenticating your credentials..."
+};
+
+<AuthiqaWidget 
+    apiKey="YOUR_API_KEY"
+    action="signin"
+    messages={messages}
+/>
 ```
 
 ```vue Vue
@@ -78,7 +92,8 @@ export default {
         termsAndConditions: String,
         privacy: String,
         notificationSettings: String,
-        buttonName: String
+        buttonName: String,
+        messages: Object // Add messages prop
     },
     mounted() {
         const script = document.createElement('script');
@@ -93,6 +108,7 @@ export default {
         if (this.privacy) script.setAttribute('privacy', this.privacy);
         if (this.notificationSettings) script.setAttribute('notificationSettings', this.notificationSettings);
         if (this.buttonName) script.setAttribute('buttonName', this.buttonName);
+        if (this.messages) script.setAttribute('data-messages', JSON.stringify(this.messages));
         
         document.body.appendChild(script);
     },
@@ -102,11 +118,37 @@ export default {
     }
 }
 </script>
+
+<!-- Usage example:
+<AuthiqaWidget 
+    :apiKey="YOUR_API_KEY"
+    action="signin"
+    :messages="{
+        signinSuccess: 'Welcome back! Redirecting you to dashboard...',
+        signinLoading: 'Authenticating your credentials...'
+    }"
+/>
+-->
 ```
 
 ```typescript Angular
 // authiqa-widget.component.ts
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+
+interface WidgetMessages {
+    signinSuccess?: string;
+    signupSuccess?: string;
+    resetSuccess?: string;
+    updateSuccess?: string;
+    resendSuccess?: string;
+    verificationSuccess?: string;
+    signinLoading?: string;
+    signupLoading?: string;
+    resetLoading?: string;
+    updateLoading?: string;
+    resendLoading?: string;
+    verificationLoading?: string;
+}
 
 @Component({
     selector: 'app-authiqa-widget',
@@ -121,6 +163,7 @@ export class AuthiqaWidgetComponent implements OnInit, OnDestroy {
     @Input() privacy?: string;
     @Input() notificationSettings?: string;
     @Input() buttonName?: string;
+    @Input() messages?: WidgetMessages; // Add messages input
 
     private script?: HTMLScriptElement;
 
@@ -137,6 +180,7 @@ export class AuthiqaWidgetComponent implements OnInit, OnDestroy {
         if (this.privacy) this.script.setAttribute('privacy', this.privacy);
         if (this.notificationSettings) this.script.setAttribute('notificationSettings', this.notificationSettings);
         if (this.buttonName) this.script.setAttribute('buttonName', this.buttonName);
+        if (this.messages) this.script.setAttribute('data-messages', JSON.stringify(this.messages));
         
         document.body.appendChild(this.script);
     }
@@ -147,6 +191,17 @@ export class AuthiqaWidgetComponent implements OnInit, OnDestroy {
         }
     }
 }
+
+<!-- Usage example:
+<app-authiqa-widget 
+    [apiKey]="YOUR_API_KEY"
+    action="signin"
+    [messages]="{
+        signinSuccess: 'Welcome back! Redirecting you to dashboard...',
+        signinLoading: 'Authenticating your credentials...'
+    }"
+></app-authiqa-widget>
+-->
 ```
 
 ```typescript Next.js
@@ -164,6 +219,20 @@ interface AuthiqaWidgetProps {
     privacy?: string;
     notificationSettings?: string;
     buttonName?: string;
+    messages?: { // Add messages prop
+        signinSuccess?: string;
+        signupSuccess?: string;
+        resetSuccess?: string;
+        updateSuccess?: string;
+        resendSuccess?: string;
+        verificationSuccess?: string;
+        signinLoading?: string;
+        signupLoading?: string;
+        resetLoading?: string;
+        updateLoading?: string;
+        resendLoading?: string;
+        verificationLoading?: string;
+    };
 }
 
 export default function AuthiqaWidget({
@@ -174,7 +243,8 @@ export default function AuthiqaWidget({
     termsAndConditions,
     privacy,
     notificationSettings,
-    buttonName
+    buttonName,
+    messages
 }: AuthiqaWidgetProps) {
     useEffect(() => {
         const script = document.createElement('script');
@@ -189,6 +259,7 @@ export default function AuthiqaWidget({
         if (privacy) script.setAttribute('privacy', privacy);
         if (notificationSettings) script.setAttribute('notificationSettings', notificationSettings);
         if (buttonName) script.setAttribute('buttonName', buttonName);
+        if (messages) script.setAttribute('data-messages', JSON.stringify(messages));
         
         document.body.appendChild(script);
         
@@ -212,6 +283,7 @@ export default function AuthiqaWidget({
     export let privacy = undefined;
     export let notificationSettings = undefined;
     export let buttonName = undefined;
+    export let messages = undefined; // Add messages prop
 
     import { onMount, onDestroy } from 'svelte';
 
@@ -230,6 +302,7 @@ export default function AuthiqaWidget({
         if (privacy) scriptElement.setAttribute('privacy', privacy);
         if (notificationSettings) scriptElement.setAttribute('notificationSettings', notificationSettings);
         if (buttonName) scriptElement.setAttribute('buttonName', buttonName);
+        if (messages) scriptElement.setAttribute('data-messages', JSON.stringify(messages));
         
         document.body.appendChild(scriptElement);
     });
