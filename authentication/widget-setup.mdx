@@ -262,6 +262,53 @@ The widget supports these configuration attributes:
 - `privacy`: URL for privacy policy
 - `notificationSettings`: URL for notification settings
 - `buttonName`: Custom text for submit button
+- `data-messages`: JSON string containing custom success and loading messages
+
+### Custom Messages
+The widget supports customizable messages for success and loading states:
+
+```javascript
+{
+    // Success messages
+    signinSuccess: string;
+    signupSuccess: string;
+    resetSuccess: string;
+    updateSuccess: string;
+    resendSuccess: string;
+    verificationSuccess: string;
+    
+    // Loading messages
+    signinLoading: string;
+    signupLoading: string;
+    resetLoading: string;
+    updateLoading: string;
+    resendLoading: string;
+    verificationLoading: string;
+}
+```
+
+<Note>
+Error messages are not customizable as they display original server responses with error codes for better debugging.
+</Note>
+
+### Message Behavior
+
+<CardGroup cols={2}>
+  <Card title="Display Duration" icon="clock">
+    - Success messages: 2 seconds
+    - Error messages: 5 seconds
+    - Loading messages: During processing
+  </Card>
+  <Card title="Message Types" icon="message">
+    - Success messages: Green with checkmark
+    - Loading messages: Below submit button
+    - Error messages: Red with error code
+  </Card>
+</CardGroup>
+
+<Note>
+If no custom messages are provided, the widget will use default messages. You can customize either success or loading messages independently.
+</Note>
 
 ### Theme Examples
 
@@ -327,6 +374,10 @@ widget.on('verify:success', () => {
     src="https://widget.authiqa.com"
     data-api-key="YOUR_API_KEY"
     action="signin"
+    data-messages='{
+        "signinSuccess": "Welcome back! Redirecting you to dashboard...",
+        "signinLoading": "Authenticating your credentials..."
+    }'
 ></script>
 ```
 
@@ -341,6 +392,10 @@ widget.on('verify:success', () => {
     privacy="https://your-site.com/privacy"
     notificationSettings="https://your-site.com/notifications"
     buttonName="Create Account"
+    data-messages='{
+        "signupSuccess": "Account created successfully! Please check your email for verification.",
+        "signupLoading": "Creating your account..."
+    }'
 ></script>
 ```
 
