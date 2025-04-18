@@ -210,6 +210,21 @@ export class AuthiqaWidgetComponent implements OnInit, OnDestroy {
 
 import { useEffect } from 'react';
 
+interface WidgetMessages {
+    signinSuccess?: string;
+    signupSuccess?: string;
+    resetSuccess?: string;
+    updateSuccess?: string;
+    resendSuccess?: string;
+    verificationSuccess?: string;
+    signinLoading?: string;
+    signupLoading?: string;
+    resetLoading?: string;
+    updateLoading?: string;
+    resendLoading?: string;
+    verificationLoading?: string;
+}
+
 interface AuthiqaWidgetProps {
     apiKey: string;
     action?: string;
@@ -219,20 +234,7 @@ interface AuthiqaWidgetProps {
     privacy?: string;
     notificationSettings?: string;
     buttonName?: string;
-    messages?: { // Add messages prop
-        signinSuccess?: string;
-        signupSuccess?: string;
-        resetSuccess?: string;
-        updateSuccess?: string;
-        resendSuccess?: string;
-        verificationSuccess?: string;
-        signinLoading?: string;
-        signupLoading?: string;
-        resetLoading?: string;
-        updateLoading?: string;
-        resendLoading?: string;
-        verificationLoading?: string;
-    };
+    messages?: WidgetMessages; // Add messages interface
 }
 
 export default function AuthiqaWidget({
@@ -269,6 +271,22 @@ export default function AuthiqaWidget({
     }, []);
 
     return <div id="authiqa" />;
+}
+
+// Usage example:
+export default function SignInPage() {
+    const messages = {
+        signinSuccess: "Welcome back! Redirecting you to dashboard...",
+        signinLoading: "Authenticating your credentials..."
+    };
+
+    return (
+        <AuthiqaWidget 
+            apiKey="YOUR_API_KEY"
+            action="signin"
+            messages={messages}
+        />
+    );
 }
 ```
 
@@ -315,6 +333,17 @@ export default function AuthiqaWidget({
 </script>
 
 <div id="authiqa"></div>
+
+<!-- Usage example:
+<AuthiqaWidget 
+    apiKey="YOUR_API_KEY"
+    action="signin"
+    messages={{
+        signinSuccess: "Welcome back! Redirecting you to dashboard...",
+        signinLoading: "Authenticating your credentials..."
+    }}
+/>
+-->
 ```
 
 </CodeGroup>
