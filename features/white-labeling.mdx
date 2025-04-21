@@ -12,7 +12,6 @@ White-labeling allows parent accounts to customize their authentication experien
 Parent accounts can set:
 - Organization name
 - Organization URL
-- Brand colors (used in widget and emails)
 
 ### Update Organization Settings
 ```javascript
@@ -46,16 +45,6 @@ const widget = new AuthiqaWidget({
 });
 ```
 
-### Custom Colors
-The widget inherits your organization's brand colors:
-
-```css
-:root {
-  --authiqa-primary-color: #YOUR_BRAND_COLOR;
-  --authiqa-text-color: #333333;
-  --authiqa-background: #ffffff;
-}
-```
 
 ## Email Templates
 
@@ -67,7 +56,6 @@ Authiqa automatically brands these transactional emails:
 Each email includes your:
 - Organization name
 - Organization URL
-- Brand colors
 
 <Note>
 Child accounts' emails use their parent organization's branding.
@@ -101,10 +89,9 @@ Child accounts' emails use their parent organization's branding.
     - Use consistent branding
     - Consider child account experience
   </Card>
-  <Card title="Email Branding" icon="envelope">
-    - Use high-quality logos
-    - Test emails in different clients
-    - Check mobile responsiveness
+  <Card title="Widget Customization" icon="paint-brush">
+    - Choose appropriate theme
+    - Use consistent mode
   </Card>
 </CardGroup>
 
@@ -112,4 +99,3 @@ Child accounts' emails use their parent organization's branding.
 
 - Child accounts cannot override parent branding
 - Organization URLs must be valid HTTPS URLs
-- Certain brand colors may be adjusted for accessibility
