@@ -36,9 +36,14 @@ const AuthiqaWidget = ({
         const script = document.createElement('script');
         script.src = 'https://widget.authiqa.com';
         script.defer = true;
+
+        // Set required attributes
+
         script.setAttribute('data-api-key', apiKey);
         script.setAttribute('action', action);
         
+        // Set optional attributes
+
         if (theme) script.setAttribute('theme', theme);
         if (disableStyles) script.setAttribute('disable-styles', 'true');
         if (termsAndConditions) script.setAttribute('termsAndConditions', termsAndConditions);
@@ -52,22 +57,25 @@ const AuthiqaWidget = ({
         return () => {
             document.body.removeChild(script);
         };
-    }, []);
+    }, [apiKey, action, theme, disableStyles, termsAndConditions, privacy, notificationSettings, buttonName, messages]); // Added dependency array
 
     return <div id="authiqa" />;
 };
 
+export default AuthiqaWidget;
+
 // Usage example:
-const messages = {
-    signinSuccess: "Welcome back! Redirecting you to dashboard...",
-    signinLoading: "Authenticating your credentials..."
-};
 
 <AuthiqaWidget 
     apiKey="YOUR_API_KEY"
     action="signin"
-    messages={messages}
+    theme="light"
+    messages={{
+        signinSuccess: "Welcome back! Redirecting you to dashboard...",
+        signinLoading: "Authenticating your credentials..."
+    }}
 />
+
 ```
 
 ```vue Vue
