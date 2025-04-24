@@ -373,6 +373,11 @@ The widget supports these configuration attributes:
 - `notificationSettings`: URL for notification settings
 - `buttonName`: Custom text for submit button
 - `data-messages`: JSON string containing custom success and loading messages
+- `successAuthPath`: Custom URL to redirect after successful sign in
+- `signinAuthPath`: Custom URL to redirect after email verification
+- `verifyAuthPath`: Custom URL for email verification page
+- `updatePasswordPath`: Custom URL for password update page
+- `resendAuthPath`: Custom URL for resend verification page
 
 ### Custom Messages
 The widget supports customizable messages for success and loading states:
@@ -418,6 +423,63 @@ Error messages are not customizable as they display original server responses wi
 
 <Note>
 If no custom messages are provided, the widget will use default messages. You can customize either success or loading messages independently.
+</Note>
+
+### Authentication Paths
+
+The widget supports custom redirection paths for different authentication flows. Some of these paths also affect the URLs included in automated emails:
+
+<CardGroup cols={2}>
+  <Card title="Sign In Flow" icon="arrow-right">
+    After successful sign in, redirects to:
+    1. Custom `successAuthPath` if provided
+    2. Default success page if not provided
+  </Card>
+  <Card title="Email Links" icon="envelope">
+    When provided, these paths are used in automated emails:
+    - `verifyAuthPath`: Used in verification emails (signup and resend)
+    - `updatePasswordPath`: Used in password reset emails
+  </Card>
+</CardGroup>
+
+### Path Configuration Examples
+
+```html
+<!-- Signup with custom verification URL -->
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="signup"
+    verifyAuthPath="https://your-site.com/verify"
+    // The verification email will include: https://your-site.com/verify?token=ABC123
+></script>
+
+<!-- Password reset with custom update URL -->
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="reset"
+    updatePasswordPath="https://your-site.com/update-password"
+    // The reset email will include: https://your-site.com/update-password?token=XYZ789
+></script>
+
+<!-- Complete authentication flow example -->
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+    action="verify"
+    signinAuthPath="https://your-site.com/login"
+    verifyAuthPath="https://your-site.com/verify"
+></script>
+```
+
+<Note>
+The `verifyAuthPath` and `updatePasswordPath` are particularly important as they determine the URLs in authentication emails:
+- Verification emails (signup & resend) will use `verifyAuthPath` + verification token
+- Password reset emails will use `updatePasswordPath` + reset token
 </Note>
 
 ### Theme Examples

@@ -6,7 +6,9 @@ api: 'POST https://api.authiqa.com/auth/update-organization'
 
 ## Overview
 
-This endpoint allows parent account holders to customize their organization details and authentication URLs for white-labeling. Child accounts automatically inherit these settings.
+This endpoint allows parent account holders to customize their organization details and authentication URLs for white-labeling. The endpoint supports two modes of operation:
+1. Initial Setup - Set organization name and URL
+2. Auth URLs Update - Modify specific authentication URLs
 
 ## API Details
 
@@ -15,6 +17,7 @@ This endpoint allows parent account holders to customize their organization deta
     JWT token for authentication
 </ParamField> 
 
+#### Mode 1: Initial Setup
 <ParamField body="organizationName" type="string" required>
   Organization name (must start with capital letter, min 4 chars)
 </ParamField>
@@ -23,10 +26,26 @@ This endpoint allows parent account holders to customize their organization deta
   Base URL for organization (must use HTTPS)
 </ParamField>
 
-<ParamField body="authUrls" type="object" required>
-  Authentication URLs configuration
+#### Mode 2: Auth URLs Update
+<ParamField body="authUrls" type="object">
+  Optional authentication URLs configuration. Only specified URLs will be updated.
 </ParamField>
 
+### Default Auth URLs
+
+When setting up the organization (Mode 1), the system automatically generates default auth URLs based on your organization URL:
+
+```json
+{
+  "signup": "${organizationUrl}/signup.html",
+  "signin": "${organizationUrl}/signin.html",
+  "verify": "${organizationUrl}/verify.html",
+  "reset": "${organizationUrl}/reset.html",
+  "update": "${organizationUrl}/update.html",
+  "resend": "${organizationUrl}/resend.html",
+  "successful": "${organizationUrl}/successful.html"
+}
+```
 
 <RequestExample>
 ```bash cURL
@@ -35,20 +54,12 @@ curl -X POST https://api.authiqa.com/auth/update-organization \
   -H "Content-Type: application/json" \
   -d '{
     "organizationName": "Example Organization",
-    "organizationUrl": "https://example.com",
-    "authUrls": {
-      "signup": "https://auth.example.com/signup",
-      "signin": "https://auth.example.com/signin",
-      "verify": "https://auth.example.com/verify",
-      "reset": "https://auth.example.com/reset",
-      "update": "https://auth.example.com/update",
-      "resend": "https://auth.example.com/resend",
-      "successful": "https://app.example.com/dashboard"
-    }
+    "organizationUrl": "https://example.com"
   }'
 ```
 
 ```javascript JavaScript
+// Mode 1: Initial Setup
 const response = await fetch('https://api.authiqa.com/auth/update-organization', {
   method: 'POST',
   headers: {
@@ -57,23 +68,28 @@ const response = await fetch('https://api.authiqa.com/auth/update-organization',
   },
   body: JSON.stringify({
     organizationName: 'Example Organization',
-    organizationUrl: 'https://example.com',
+    organizationUrl: 'https://example.com'
+  })
+});
+
+// Mode 2: Update specific auth URLs
+const response = await fetch('https://api.authiqa.com/auth/update-organization', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
     authUrls: {
-      signup: 'https://auth.example.com/signup',
       signin: 'https://auth.example.com/signin',
-      verify: 'https://auth.example.com/verify',
-      reset: 'https://auth.example.com/reset',
-      update: 'https://auth.example.com/update',
-      resend: 'https://auth.example.com/resend',
-      successful: 'https://app.example.com/dashboard'
+      signup: 'https://auth.example.com/signup'
     }
   })
 });
 ```
 
 ```python Python
-import requests
-
+# Mode 1: Initial Setup
 response = requests.post(
     'https://api.authiqa.com/auth/update-organization',
     headers={
@@ -82,15 +98,21 @@ response = requests.post(
     },
     json={
         'organizationName': 'Example Organization',
-        'organizationUrl': 'https://example.com',
+        'organizationUrl': 'https://example.com'
+    }
+)
+
+# Mode 2: Update specific auth URLs
+response = requests.post(
+    'https://api.authiqa.com/auth/update-organization',
+    headers={
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Content-Type': 'application/json'
+    },
+    json={
         'authUrls': {
-            'signup': 'https://auth.example.com/signup',
             'signin': 'https://auth.example.com/signin',
-            'verify': 'https://auth.example.com/verify',
-            'reset': 'https://auth.example.com/reset',
-            'update': 'https://auth.example.com/update',
-            'resend': 'https://auth.example.com/resend',
-            'successful': 'https://app.example.com/dashboard'
+            'signup': 'https://auth.example.com/signup'
         }
     }
 )
@@ -100,51 +122,61 @@ response = requests.post(
 ## Try It Out
 
 <Note>
-Test the API by providing your organization details and JWT token:
+Select a mode and test the API:
 </Note>
 
 <Card>
-  <ParamField header="Authorization" type="string" required placeholder="Bearer YOUR_JWT_TOKEN">
-    JWT token for authentication
-  </ParamField>
+  <Tabs>
+    <Tab title="Mode 1: Initial Setup">
+      <ParamField header="Authorization" required placeholder="Bearer YOUR_JWT_TOKEN">
+        JWT token for authentication
+      </ParamField>
 
-  <ParamField path="organizationName" placeholder="Example Organization" required>
-    Organization name
-  </ParamField>
+      <ParamField body="organizationName" required placeholder="Example Organization">
+        Organization name (must start with capital letter, min 4 chars)
+      </ParamField>
 
-  <ParamField path="organizationUrl" placeholder="https://example.com" required>
-    Organization base URL
-  </ParamField>
+      <ParamField body="organizationUrl" required placeholder="https://example.com">
+        Base URL for organization (must use HTTPS)
+      </ParamField>
+    </Tab>
 
-  <Expandable title="Authentication URLs" defaultOpen>
-    <ParamField path="authUrls.signup" placeholder="https://auth.example.com/signup" required>
-      Signup URL
-    </ParamField>
+    <Tab title="Mode 2: Auth URLs">
+      <ParamField header="Authorization" required placeholder="Bearer YOUR_JWT_TOKEN">
+        JWT token for authentication
+      </ParamField>
 
-    <ParamField path="authUrls.signin" placeholder="https://auth.example.com/signin" required>
-      Signin URL
-    </ParamField>
+      <Expandable title="Authentication URLs" defaultOpen>
+        <ParamField body="authUrls.signup" placeholder="https://auth.example.com/signup">
+          Custom signup URL
+        </ParamField>
 
-    <ParamField path="authUrls.verify" placeholder="https://auth.example.com/verify" required>
-      Verification URL
-    </ParamField>
+        <ParamField body="authUrls.signin" placeholder="https://auth.example.com/signin">
+          Custom signin URL
+        </ParamField>
 
-    <ParamField path="authUrls.reset" placeholder="https://auth.example.com/reset" required>
-      Password reset URL
-    </ParamField>
+        <ParamField body="authUrls.verify" placeholder="https://auth.example.com/verify">
+          Custom verification URL
+        </ParamField>
 
-    <ParamField path="authUrls.update" placeholder="https://auth.example.com/update" required>
-      Password update URL
-    </ParamField>
+        <ParamField body="authUrls.reset" placeholder="https://auth.example.com/reset">
+          Custom password reset URL
+        </ParamField>
 
-    <ParamField path="authUrls.resend" placeholder="https://auth.example.com/resend" required>
-      Resend verification URL
-    </ParamField>
+        <ParamField body="authUrls.update" placeholder="https://auth.example.com/update">
+          Custom password update URL
+        </ParamField>
 
-    <ParamField path="authUrls.successful" placeholder="https://app.example.com/dashboard" required>
-      Success redirect URL
-    </ParamField>
-  </Expandable>
+        <ParamField body="authUrls.resend" placeholder="https://auth.example.com/resend">
+          Custom resend verification URL
+        </ParamField>
+
+        <ParamField body="authUrls.successful" placeholder="https://app.example.com/dashboard">
+          Custom success redirect URL
+        </ParamField>
+      </Expandable>
+    </Tab>
+  </Tabs>
 
   <Expandable title="Headers" defaultOpen>
     <ParamField header="Content-Type" value="application/json" />
@@ -161,6 +193,7 @@ Test the API by providing your organization details and JWT token:
 
 ## Response Examples
 
+### Mode 1: Initial Setup Response
 <ResponseField name="200: Success">
 ```json
 {
@@ -171,13 +204,31 @@ Test the API by providing your organization details and JWT token:
       "organizationName": "Example Organization",
       "organizationUrl": "https://example.com",
       "authUrls": {
-        "signup": "https://auth.example.com/signup",
+        "signup": "https://example.com/signup.html",
+        "signin": "https://example.com/signin.html",
+        "verify": "https://example.com/verify.html",
+        "reset": "https://example.com/reset.html",
+        "update": "https://example.com/update.html",
+        "resend": "https://example.com/resend.html",
+        "successful": "https://example.com/successful.html"
+      }
+    }
+  }
+}
+```
+</ResponseField>
+
+### Mode 2: Auth URLs Update Response
+<ResponseField name="200: Success">
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Auth URLs updated successfully",
+    "data": {
+      "authUrls": {
         "signin": "https://auth.example.com/signin",
-        "verify": "https://auth.example.com/verify",
-        "reset": "https://auth.example.com/reset",
-        "update": "https://auth.example.com/update",
-        "resend": "https://auth.example.com/resend",
-        "successful": "https://app.example.com/dashboard"
+        "signup": "https://auth.example.com/signup"
       }
     }
   }
@@ -199,10 +250,6 @@ Test the API by providing your organization details and JWT token:
   - `UNAUTHORIZED_ACCESS` - Child accounts cannot update organization
 </ResponseField>
 
-<ResponseField name="403 Forbidden">
-  - `ORGANIZATION_UPDATE_LIMIT` - Update limit reached (max 3 updates)
-</ResponseField>
-
 ## Validation Rules
 
 <CardGroup cols={2}>
@@ -214,13 +261,16 @@ Test the API by providing your organization details and JWT token:
   <Card title="URLs" icon="link">
     - Valid URL format
     - Must use HTTPS
-    - Must be accessible
-    - Must be under organization domain
+    - Auth URLs must be under organization domain
+    - Organization URL must be set before updating auth URLs
   </Card>
 </CardGroup>
 
-## Notes
+## Important Notes
 
-<Warning>
-Organization details can only be updated 3 times to prevent abuse. Plan your configuration carefully.
-</Warning>
+<Note>
+- Organization details can be updated multiple times
+- Auth URLs can be updated individually without affecting other URLs
+- Default auth URLs are automatically generated during initial setup
+- Auth URLs must match the organization's domain
+</Note>
