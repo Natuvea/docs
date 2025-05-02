@@ -379,6 +379,134 @@ The widget supports these configuration attributes:
 - `updatePasswordPath`: Custom URL for password update page
 - `resendAuthPath`: Custom URL for resend verification page
 - `data-customization`: JSON string containing layout and styling customizations
+- `action`: Authentication action (optional if URL contains action)
+
+### URL-Based Action Detection
+
+The widget can automatically detect the authentication action from the URL if no `action` attribute is provided in the script tag. It will scan the URL for any of the valid actions (`signin`, `signup`, `verify`, `reset`, `update`, `resend`).
+
+```html
+<!-- No action attribute needed if URL contains the action -->
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+></script>
+```
+
+For example:
+- If the URL is `https://example.com/auth/signup`, the widget will show the signup form
+- If the URL is `https://example.com/verify?token=abc123`, the widget will show the verification form
+- If the URL is `https://example.com/auth#reset`, the widget will show the password reset form
+
+<Note>
+If both the URL contains an action and the script tag has an `action` attribute, the attribute in the script tag takes precedence.
+</Note>
+
+### Direct CSS Styling
+
+In addition to using the `data-customization` attribute, you can directly style the widget elements using CSS selectors. The widget uses specific class names that you can target in your stylesheets:
+
+```html
+<head>
+    <style>
+        /* Container styling */
+        .authiqa-container {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            border: none !important;
+        }
+        
+        /* Title styling */
+        .authiqa-container h1,
+        #authiqa h1 {
+            font-family: 'Georgia', serif !important;
+            letter-spacing: 2px !important;
+            color: #333 !important;
+        }
+        
+        /* Input styling */
+        .authiqa-container .authiqa-input,
+        input.authiqa-input {
+            border: 2px solid #6200ea !important;
+            border-radius: 25px !important;
+            padding: 16px !important;
+        }
+        
+        /* Button styling */
+        .authiqa-container .authiqa-button,
+        button.authiqa-button {
+            text-transform: uppercase !important;
+            font-weight: bold !important;
+            letter-spacing: 1px !important;
+        }
+    </style>
+</head>
+```
+
+### CSS Class Reference
+
+The widget uses the following CSS classes that you can target for custom styling:
+
+| CSS Class | Element | Description |
+|-----------|---------|-------------|
+| `.authiqa-container` | Main container | The outer container of the widget |
+| `.authiqa-title` | Title | The main heading (h1) of the form |
+| `.authiqa-input` | Input fields | All input fields (email, password, etc.) |
+| `.authiqa-button` | Submit button | The main action button |
+| `.authiqa-password-container` | Password field wrapper | Container for password input and toggle |
+| `.password-toggle` | Password visibility toggle | Button to show/hide password |
+| `.authiqa-error` | Error message | Container for error messages |
+| `.authiqa-success` | Success message | Container for success messages |
+
+<Note>
+When styling the widget with CSS, use the `!important` flag to ensure your styles override the default styles. For more complex customizations, you can use the `disable-styles="true"` attribute and apply your own styles from scratch.
+</Note>
+
+### Combined Example with Custom CSS and URL-Based Action
+
+This example shows how to combine custom CSS styling with URL-based action detection:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Custom Styled Authiqa Widget</title>
+    <style>
+        /* Custom styling for the widget */
+        .authiqa-container {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            border-radius: 16px !important;
+        }
+        
+        /* Input styling */
+        .authiqa-container .authiqa-input {
+            border: 2px solid #6200ea !important;
+            border-radius: 25px !important;
+        }
+        
+        /* Button styling */
+        .authiqa-container .authiqa-button {
+            text-transform: uppercase !important;
+            font-weight: bold !important;
+            background-color: #6200ea !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="authiqa"></div>
+    <script
+        src="https://widget.authiqa.com"
+        defer
+        data-api-key="YOUR_API_KEY"
+        data-customization='{
+            "colors": {
+                "buttonText": "#ffffff"
+            }
+        }'
+    ></script>
+</body>
+</html>
+```
 
 ### Advanced Customization
 
