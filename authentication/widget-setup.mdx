@@ -457,6 +457,9 @@ The widget uses the following CSS classes that you can target for custom styling
 | `.password-toggle` | Password visibility toggle | Button to show/hide password |
 | `.authiqa-error` | Error message | Container for error messages |
 | `.authiqa-success` | Success message | Container for success messages |
+| `.authiqa-form` | Form element | The form element containing inputs |
+| `.authiqa-label` | Input labels | Labels above input fields |
+| `.authiqa-labeled-input` | Label+input container | Container for label and input pairs |
 
 <Note>
 When styling the widget with CSS, use the `!important` flag to ensure your styles override the default styles. For more complex customizations, you can use the `disable-styles="true"` attribute and apply your own styles from scratch.
@@ -561,8 +564,17 @@ The widget supports extensive customization through the `data-customization` att
 ```javascript
 {
     "inputs": {
+        // Placeholder customization
         "emailPlaceholder": "Enter your email",
-        "passwordPlaceholder": "Enter your password"
+        "passwordPlaceholder": "Enter your password",
+        "usernamePlaceholder": "Choose a username",
+        "confirmPasswordPlaceholder": "Confirm your password",
+        
+        // Label text customization
+        "emailLabel": "Email Address",
+        "passwordLabel": "Password",
+        "usernameLabel": "Username",
+        "confirmPasswordLabel": "Confirm Password"
     },
     "buttons": {
         "signinText": "Sign In",
@@ -610,7 +622,11 @@ Each authentication action (signin, signup, reset, update, verify, resend) has c
             "titleSize": "2rem"
         },
         "inputs": {
-            "emailPlaceholder": "Your email address"
+            "emailPlaceholder": "Your email address",
+            "emailLabel": "Work Email",
+            "passwordPlaceholder": "Create a strong password",
+            "passwordLabel": "Create Password",
+            "usernameLabel": "Choose Username"
         },
         "buttons": {
             "signupText": "Create Account"
@@ -618,6 +634,10 @@ Each authentication action (signin, signup, reset, update, verify, resend) has c
     }'
 ></script>
 ```
+
+<Note>
+Labels follow accessibility best practices by being properly associated with their input fields using the `for` attribute. This improves usability for screen readers and allows users to click on the label to focus the input field.
+</Note>
 
 ### Custom Messages
 The widget supports customizable messages for success and loading states:
