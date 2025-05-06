@@ -18,342 +18,6 @@ description: 'Learn how you can integrate and configure the Authiqa authenticati
 ></script>
 ```
 
-```jsx React
-import { useEffect } from 'react';
-
-const AuthiqaWidget = ({ 
-    apiKey, 
-    action = 'signin',
-    theme,
-    disableStyles,
-    termsAndConditions,
-    privacy,
-    notificationSettings,
-    buttonName,
-    messages // Add messages prop
-}) => {
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://widget.authiqa.com';
-        script.defer = true;
-
-        // Set required attributes
-
-        script.setAttribute('data-api-key', apiKey);
-        script.setAttribute('action', action);
-        
-        // Set optional attributes
-
-        if (theme) script.setAttribute('theme', theme);
-        if (disableStyles) script.setAttribute('disable-styles', 'true');
-        if (termsAndConditions) script.setAttribute('termsAndConditions', termsAndConditions);
-        if (privacy) script.setAttribute('privacy', privacy);
-        if (notificationSettings) script.setAttribute('notificationSettings', notificationSettings);
-        if (buttonName) script.setAttribute('buttonName', buttonName);
-        if (messages) script.setAttribute('data-messages', JSON.stringify(messages));
-        
-        document.body.appendChild(script);
-        
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, [apiKey, action, theme, disableStyles, termsAndConditions, privacy, notificationSettings, buttonName, messages]); // Added dependency array
-
-    return <div id="authiqa" />;
-};
-
-export default AuthiqaWidget;
-
-// Usage example:
-
-<AuthiqaWidget 
-    apiKey="YOUR_API_KEY"
-    action="signin"
-    theme="light"
-    messages={{
-        signinSuccess: "Welcome back! Redirecting you to dashboard...",
-        signinLoading: "Authenticating your credentials..."
-    }}
-/>
-
-```
-
-```vue Vue
-<template>
-    <div id="authiqa"></div>
-</template>
-
-<script>
-export default {
-    name: 'AuthiqaWidget',
-    props: {
-        apiKey: {
-            type: String,
-            required: true
-        },
-        action: {
-            type: String,
-            default: 'signin'
-        },
-        theme: String,
-        disableStyles: Boolean,
-        termsAndConditions: String,
-        privacy: String,
-        notificationSettings: String,
-        buttonName: String,
-        messages: Object // Add messages prop
-    },
-    mounted() {
-        const script = document.createElement('script');
-        script.src = 'https://widget.authiqa.com';
-        script.defer = true;
-        script.setAttribute('data-api-key', this.apiKey);
-        script.setAttribute('action', this.action);
-        
-        if (this.theme) script.setAttribute('theme', this.theme);
-        if (this.disableStyles) script.setAttribute('disable-styles', 'true');
-        if (this.termsAndConditions) script.setAttribute('termsAndConditions', this.termsAndConditions);
-        if (this.privacy) script.setAttribute('privacy', this.privacy);
-        if (this.notificationSettings) script.setAttribute('notificationSettings', this.notificationSettings);
-        if (this.buttonName) script.setAttribute('buttonName', this.buttonName);
-        if (this.messages) script.setAttribute('data-messages', JSON.stringify(this.messages));
-        
-        document.body.appendChild(script);
-    },
-    beforeDestroy() {
-        const script = document.querySelector(`script[data-api-key="${this.apiKey}"]`);
-        if (script) document.body.removeChild(script);
-    }
-}
-</script>
-
-<!-- Usage example:
-<AuthiqaWidget 
-    :apiKey="YOUR_API_KEY"
-    action="signin"
-    :messages="{
-        signinSuccess: 'Welcome back! Redirecting you to dashboard...',
-        signinLoading: 'Authenticating your credentials...'
-    }"
-/>
--->
-```
-
-```typescript Angular
-// authiqa-widget.component.ts
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-
-interface WidgetMessages {
-    signinSuccess?: string;
-    signupSuccess?: string;
-    resetSuccess?: string;
-    updateSuccess?: string;
-    resendSuccess?: string;
-    verificationSuccess?: string;
-    signinLoading?: string;
-    signupLoading?: string;
-    resetLoading?: string;
-    updateLoading?: string;
-    resendLoading?: string;
-    verificationLoading?: string;
-}
-
-@Component({
-    selector: 'app-authiqa-widget',
-    template: '<div id="authiqa"></div>'
-})
-export class AuthiqaWidgetComponent implements OnInit, OnDestroy {
-    @Input() apiKey!: string;
-    @Input() action: string = 'signin';
-    @Input() theme?: string;
-    @Input() disableStyles?: boolean;
-    @Input() termsAndConditions?: string;
-    @Input() privacy?: string;
-    @Input() notificationSettings?: string;
-    @Input() buttonName?: string;
-    @Input() messages?: WidgetMessages; // Add messages input
-
-    private script?: HTMLScriptElement;
-
-    ngOnInit() {
-        this.script = document.createElement('script');
-        this.script.src = 'https://widget.authiqa.com';
-        this.script.defer = true;
-        this.script.setAttribute('data-api-key', this.apiKey);
-        this.script.setAttribute('action', this.action);
-        
-        if (this.theme) this.script.setAttribute('theme', this.theme);
-        if (this.disableStyles) this.script.setAttribute('disable-styles', 'true');
-        if (this.termsAndConditions) this.script.setAttribute('termsAndConditions', this.termsAndConditions);
-        if (this.privacy) this.script.setAttribute('privacy', this.privacy);
-        if (this.notificationSettings) this.script.setAttribute('notificationSettings', this.notificationSettings);
-        if (this.buttonName) this.script.setAttribute('buttonName', this.buttonName);
-        if (this.messages) this.script.setAttribute('data-messages', JSON.stringify(this.messages));
-        
-        document.body.appendChild(this.script);
-    }
-
-    ngOnDestroy() {
-        if (this.script) {
-            document.body.removeChild(this.script);
-        }
-    }
-}
-
-<!-- Usage example:
-<app-authiqa-widget 
-    [apiKey]="YOUR_API_KEY"
-    action="signin"
-    [messages]="{
-        signinSuccess: 'Welcome back! Redirecting you to dashboard...',
-        signinLoading: 'Authenticating your credentials...'
-    }"
-></app-authiqa-widget>
--->
-```
-
-```typescript Next.js
-// components/AuthiqaWidget.tsx
-'use client';
-
-import { useEffect } from 'react';
-
-interface WidgetMessages {
-    signinSuccess?: string;
-    signupSuccess?: string;
-    resetSuccess?: string;
-    updateSuccess?: string;
-    resendSuccess?: string;
-    verificationSuccess?: string;
-    signinLoading?: string;
-    signupLoading?: string;
-    resetLoading?: string;
-    updateLoading?: string;
-    resendLoading?: string;
-    verificationLoading?: string;
-}
-
-interface AuthiqaWidgetProps {
-    apiKey: string;
-    action?: string;
-    theme?: 'light' | 'dark';
-    disableStyles?: boolean;
-    termsAndConditions?: string;
-    privacy?: string;
-    notificationSettings?: string;
-    buttonName?: string;
-    messages?: WidgetMessages; // Add messages interface
-}
-
-export default function AuthiqaWidget({
-    apiKey,
-    action = 'signin',
-    theme,
-    disableStyles,
-    termsAndConditions,
-    privacy,
-    notificationSettings,
-    buttonName,
-    messages
-}: AuthiqaWidgetProps) {
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://widget.authiqa.com';
-        script.defer = true;
-        script.setAttribute('data-api-key', apiKey);
-        script.setAttribute('action', action);
-        
-        if (theme) script.setAttribute('theme', theme);
-        if (disableStyles) script.setAttribute('disable-styles', 'true');
-        if (termsAndConditions) script.setAttribute('termsAndConditions', termsAndConditions);
-        if (privacy) script.setAttribute('privacy', privacy);
-        if (notificationSettings) script.setAttribute('notificationSettings', notificationSettings);
-        if (buttonName) script.setAttribute('buttonName', buttonName);
-        if (messages) script.setAttribute('data-messages', JSON.stringify(messages));
-        
-        document.body.appendChild(script);
-        
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
-
-    return <div id="authiqa" />;
-}
-
-// Usage example:
-export default function SignInPage() {
-    const messages = {
-        signinSuccess: "Welcome back! Redirecting you to dashboard...",
-        signinLoading: "Authenticating your credentials..."
-    };
-
-    return (
-        <AuthiqaWidget 
-            apiKey="YOUR_API_KEY"
-            action="signin"
-            messages={messages}
-        />
-    );
-}
-```
-
-```svelte Svelte
-<!-- AuthiqaWidget.svelte -->
-<script>
-    export let apiKey;
-    export let action = 'signin';
-    export let theme = undefined;
-    export let disableStyles = undefined;
-    export let termsAndConditions = undefined;
-    export let privacy = undefined;
-    export let notificationSettings = undefined;
-    export let buttonName = undefined;
-    export let messages = undefined; // Add messages prop
-
-    import { onMount, onDestroy } from 'svelte';
-
-    let scriptElement;
-
-    onMount(() => {
-        scriptElement = document.createElement('script');
-        scriptElement.src = 'https://widget.authiqa.com';
-        scriptElement.defer = true;
-        scriptElement.setAttribute('data-api-key', apiKey);
-        scriptElement.setAttribute('action', action);
-        
-        if (theme) scriptElement.setAttribute('theme', theme);
-        if (disableStyles) scriptElement.setAttribute('disable-styles', 'true');
-        if (termsAndConditions) scriptElement.setAttribute('termsAndConditions', termsAndConditions);
-        if (privacy) scriptElement.setAttribute('privacy', privacy);
-        if (notificationSettings) scriptElement.setAttribute('notificationSettings', notificationSettings);
-        if (buttonName) scriptElement.setAttribute('buttonName', buttonName);
-        if (messages) scriptElement.setAttribute('data-messages', JSON.stringify(messages));
-        
-        document.body.appendChild(scriptElement);
-    });
-
-    onDestroy(() => {
-        if (scriptElement) {
-            document.body.removeChild(scriptElement);
-        }
-    });
-</script>
-
-<div id="authiqa"></div>
-
-<!-- Usage example:
-<AuthiqaWidget 
-    apiKey="YOUR_API_KEY"
-    action="signin"
-    messages={{
-        signinSuccess: "Welcome back! Redirecting you to dashboard...",
-        signinLoading: "Authenticating your credentials..."
-    }}
-/>
--->
-```
-
 </CodeGroup>
 
 ## Configuration Options
@@ -872,3 +536,303 @@ widget.on('verify:success', () => {
 ```
 
 </CodeGroup>
+
+## React Package
+
+For React applications, we provide a dedicated React wrapper package that simplifies integration and provides a more React-friendly API.
+
+### Installation
+
+```bash
+npm install authiqa-react
+# or
+yarn add authiqa-react
+```
+
+Include the Authiqa Widget script in your HTML (typically in `index.html`):
+
+```html
+<script defer src="https://widget.authiqa.com"></script>
+```
+
+### Basic Usage
+
+```jsx
+import { AuthiqaWidget } from 'authiqa-react';
+
+function App() {
+  const handleSuccess = (data) => {
+    console.log('Authentication successful:', data);
+    // Redirect or update state based on successful authentication
+  };
+
+  const handleError = (error) => {
+    console.error('Authentication failed:', error);
+    // Handle authentication errors
+  };
+
+  return (
+    <div className="app">
+      <h1>My Application</h1>
+      <AuthiqaWidget 
+        apiKey="YOUR_API_KEY"
+        action="signin"
+        onSuccess={handleSuccess}
+        onError={handleError}
+      />
+    </div>
+  );
+}
+
+export default App;
+```
+
+### Critical Vite Configuration
+
+⚠️ **Important**: For Vite applications, include this specific configuration in `vite.config.js`:
+
+```javascript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  optimizeDeps: {
+    exclude: ['authiqa-react'],
+  },
+  build: {
+    commonjsOptions: {
+      include: [/authiqa-react/, /node_modules/],
+    },
+  },
+});
+```
+
+This configuration is required for the Authiqa widget to initialize properly in Vite applications. Without it, the widget may not load or function correctly.
+
+### Props Reference
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `apiKey` | string | Yes | - | Your Authiqa API key |
+| `action` | string | No | "signin" | Authentication action ("signin", "signup", "reset", "verify", "update", "resend") |
+| `theme` | string | No | "light" | Widget theme ("light", "dark") |
+| `mode` | string | No | "popup" | Display mode ("popup", "inline") |
+| `container` | string | Yes | "authiqa-react-container" | Container ID |
+| `onSuccess` | function | No | - | Callback when authentication succeeds |
+| `onError` | function | No | - | Callback when authentication fails |
+| `customization` | object | No | - | Custom styling options (colors, typography, layout) |
+| `termsAndConditions` | string | No | - | URL to terms and conditions |
+| `privacy` | string | No | - | URL to privacy policy |
+| `notificationSettings` | string | No | - | URL to notification settings |
+| `verifyAuthPath` | string | No | - | Path for email verification |
+| `updatePasswordPath` | string | No | - | Path for password update |
+| `resendAuthPath` | string | No | - | Path for resending verification |
+| `successAuthPath` | string | No | - | Path for success redirect |
+| `signinAuthPath` | string | No | - | Path for sign-in redirect |
+
+### Customization Options
+
+The `customization` prop accepts an object with the following structure:
+
+```jsx
+<AuthiqaWidget 
+  apiKey="YOUR_API_KEY"
+  action="signin"
+  customization={{
+    pageLayout: {
+      backgroundColor: "#f5f5f5",
+      formPosition: "center"
+    },
+    layout: {
+      padding: "2rem",
+      borderRadius: "10px"
+    },
+    colors: {
+      background: "#ffffff",
+      buttonBackground: "#4CAF50",
+      buttonText: "#ffffff"
+    },
+    typography: {
+      titleText: {
+        signinText: "Welcome Back"
+      },
+      titleSize: "2rem"
+    },
+    inputs: {
+      emailPlaceholder: "Your email address",
+      emailLabel: "Work Email",
+      passwordPlaceholder: "Enter your password",
+      passwordLabel: "Password"
+    },
+    buttons: {
+      signinText: "Log In"
+    }
+  }}
+/>
+```
+
+### Event Handling
+
+```jsx
+import { AuthiqaWidget } from 'authiqa-react';
+
+function AuthPage() {
+  const handleSuccess = (data) => {
+    console.log('Authentication successful:', data);
+    // data contains:
+    // - token: JWT access token
+    // - user: User information
+    // - expiresAt: Token expiration timestamp
+    
+    // Tokens are automatically stored in localStorage:
+    // - authiqa_token: JWT access token
+    // - authiqa_token_expiration: Token expiration
+  };
+
+  const handleError = (error) => {
+    console.error('Authentication failed:', error);
+    // error contains:
+    // - message: Error message
+    // - code: Error code (if available)
+  };
+
+  return (
+    <AuthiqaWidget 
+      apiKey="YOUR_API_KEY"
+      action="signin"
+      onSuccess={handleSuccess}
+      onError={handleError}
+    />
+  );
+}
+```
+
+### Authentication Flow Examples
+
+#### Sign In Example
+
+```jsx
+import { AuthiqaWidget } from 'authiqa-react';
+import { useNavigate } from 'react-router-dom';
+
+function SignIn() {
+  const navigate = useNavigate();
+  
+  const handleSuccess = () => {
+    navigate('/dashboard');
+  };
+  
+  return (
+    <div className="signin-page">
+      <h1>Sign In</h1>
+      <AuthiqaWidget 
+        apiKey="YOUR_API_KEY"
+        action="signin"
+        onSuccess={handleSuccess}
+        successAuthPath="/dashboard"
+      />
+    </div>
+  );
+}
+```
+
+#### Sign Up Example
+
+```jsx
+import { AuthiqaWidget } from 'authiqa-react';
+
+function SignUp() {
+  return (
+    <div className="signup-page">
+      <h1>Create Account</h1>
+      <AuthiqaWidget 
+        apiKey="YOUR_API_KEY"
+        action="signup"
+        termsAndConditions="https://your-site.com/terms"
+        privacy="https://your-site.com/privacy"
+        verifyAuthPath="/verify"
+      />
+    </div>
+  );
+}
+```
+
+### Framework Integration Examples
+
+#### Next.js Example
+
+```jsx
+// components/AuthiqaSignIn.js
+'use client';
+
+import { AuthiqaWidget } from 'authiqa-react';
+import { useRouter } from 'next/navigation';
+
+export default function AuthiqaSignIn() {
+  const router = useRouter();
+  
+  const handleSuccess = () => {
+    router.push('/dashboard');
+  };
+  
+  return (
+    <AuthiqaWidget 
+      apiKey={process.env.NEXT_PUBLIC_AUTHIQA_API_KEY}
+      action="signin"
+      onSuccess={handleSuccess}
+    />
+  );
+}
+```
+
+#### React Router Example
+
+```jsx
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthiqaWidget } from 'authiqa-react';
+
+// Authentication guard component
+function RequireAuth({ children }) {
+  const isAuthenticated = localStorage.getItem('authiqa_token') !== null;
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={
+        <AuthiqaWidget 
+          apiKey="YOUR_API_KEY"
+          action="signin"
+          successAuthPath="/dashboard"
+        />
+      } />
+      <Route path="/signup" element={
+        <AuthiqaWidget 
+          apiKey="YOUR_API_KEY"
+          action="signup"
+          verifyAuthPath="/verify"
+        />
+      } />
+      <Route path="/dashboard" element={
+        <RequireAuth>
+          <Dashboard />
+        </RequireAuth>
+      } />
+    </Routes>
+  );
+}
+```
+
+### Troubleshooting
+
+- **Widget not loading**: Ensure the script is included in your HTML and the container element exists
+- **Vite configuration issues**: Make sure to use the exact configuration provided in the Vite Configuration section
+- **Event handlers not firing**: Check that event names match expected values (`onSuccess`, `onError`)
+- **Styling conflicts**: Use the `customization` prop to override default styles or apply CSS targeting the widget container
