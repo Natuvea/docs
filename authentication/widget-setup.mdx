@@ -6,12 +6,16 @@ description: 'Learn how you can integrate and configure the Authiqa authenticati
 
 ### Widget Integration
 
+
 <CodeGroup>
+
 
 ```html HTML
 <div id="authiqa"></div>
+
 <script 
     defer
+
     src="https://widget.authiqa.com"
     data-api-key="YOUR_API_KEY"
     action="signin"
@@ -42,6 +46,7 @@ The widget supports these configuration attributes:
 - `verifyAuthPath`: Custom URL for email verification page
 - `updatePasswordPath`: Custom URL for password update page
 - `resendAuthPath`: Custom URL for resend verification page
+- `resetAuthPath`: Custom URL for password reset page
 - `data-customization`: JSON string containing layout and styling customizations
 - `action`: Authentication action (optional if URL contains action)
 
@@ -103,6 +108,11 @@ In addition to using the `data-customization` attribute, you can directly style 
             font-weight: bold !important;
             letter-spacing: 1px !important;
         }
+        
+        /* Terms container styling */
+        .authiqa-container .terms-container {
+            margin-bottom: 2rem !important; /* Increased spacing before button */
+        }
     </style>
 </head>
 ```
@@ -124,6 +134,7 @@ The widget uses the following CSS classes that you can target for custom styling
 | `.authiqa-form` | Form element | The form element containing inputs |
 | `.authiqa-label` | Input labels | Labels above input fields |
 | `.authiqa-labeled-input` | Label+input container | Container for label and input pairs |
+| `.terms-container` | Terms checkbox area | Container for terms and conditions checkbox and text |
 
 <Note>
 When styling the widget with CSS, use the `!important` flag to ensure your styles override the default styles. For more complex customizations, you can use the `disable-styles="true"` attribute and apply your own styles from scratch.
@@ -206,6 +217,7 @@ The widget supports extensive customization through the `data-customization` att
         "buttonText": "#ffffff",
         "inputBackground": "#f8f9fa",
         "inputText": "#333333",
+        "inputPlaceholder": "#a3a3a3",
         "borderColor": "#dee2e6"
     },
     "typography": {
@@ -219,7 +231,19 @@ The widget supports extensive customization through the `data-customization` att
         },
         "titleSize": "1.8rem",
         "titleColor": "#333333",
-        "fontFamily": "Arial, sans-serif"
+        "fontFamily": "Arial, sans-serif",
+        "termsText": {
+            "agreePrefix": "I agree with the",
+            "andConnector": "and",
+            "defaultPrefix": "default",
+            "linkText": {
+                "terms": "Terms of Service",
+                "privacy": "Privacy Policy",
+                "notifications": "Notification Settings"
+            },
+            "textColor": "#333333",
+            "linkColor": "#007bff"
+        }
     }
 }
 ```
@@ -248,6 +272,7 @@ The widget supports extensive customization through the `data-customization` att
         "verifyText": "Verify Email",
         "resendText": "Resend Confirmation",
         "height": "45px",
+        "width": "100%",
         "borderRadius": "25px"
     }
 }
@@ -277,13 +302,18 @@ Each authentication action (signin, signup, reset, update, verify, resend) has c
         "colors": {
             "background": "#ffffff",
             "buttonBackground": "#4CAF50",
-            "buttonText": "#ffffff"
+            "buttonText": "#ffffff",
+            "inputPlaceholder": "#a3a3a3"
         },
         "typography": {
             "titleText": {
                 "signupText": "Join Our Community"
             },
-            "titleSize": "2rem"
+            "titleSize": "2rem",
+            "termsText": {
+                "textColor": "#555555",
+                "linkColor": "#4CAF50"
+            }
         },
         "inputs": {
             "emailPlaceholder": "Your email address",
@@ -491,6 +521,14 @@ widget.on('verify:success', () => {
     data-messages='{
         "signupSuccess": "Account created successfully! Please check your email for verification.",
         "signupLoading": "Creating your account..."
+    }'
+    data-customization='{
+        "typography": {
+            "termsText": {
+                "textColor": "#555555",
+                "linkColor": "#4CAF50"
+            }
+        }
     }'
 ></script>
 ```
@@ -836,3 +874,33 @@ function App() {
 - **Vite configuration issues**: Make sure to use the exact configuration provided in the Vite Configuration section
 - **Event handlers not firing**: Check that event names match expected values (`onSuccess`, `onError`)
 - **Styling conflicts**: Use the `customization` prop to override default styles or apply CSS targeting the widget container
+
+### Password Expiry Handling
+
+The widget includes built-in support for password expiry management. By default, passwords expire after 90 days to maintain security best practices.
+
+<CardGroup cols={2}>
+  <Card title="Expired Passwords" icon="lock">
+    When a password has expired (90+ days old):
+    - User is redirected to the password reset page
+    - A warning message is displayed
+    - User must update their password to continue
+  </Card>
+  <Card title="Expiring Soon" icon="clock-rotate-left">
+    When a password will expire soon:
+    - Warning message shows days until expiry
+    - For urgent warnings (≤3 days), message displays for 3 seconds
+    - For less urgent warnings (4-14 days), user can proceed immediately
+  </Card>
+</CardGroup>
+
+This feature helps maintain security compliance by ensuring users update their passwords regularly. The 90-day password rotation policy follows industry security standards and helps protect user accounts from unauthorized access.
+
+The expiry warning thresholds are:
+- Critical: 3 days or less (enforced delay before proceeding)
+- Warning: 4-14 days (informational only)
+- No warning: 15-89 days remaining
+
+<Note>
+Password expiry is managed server-side. The widget simply responds to the expiry status returned by the authentication API. The 90-day expiry period starts from the date when the password was last changed.
+</Note>
