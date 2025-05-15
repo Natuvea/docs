@@ -904,3 +904,403 @@ The expiry warning thresholds are:
 <Note>
 Password expiry is managed server-side. The widget simply responds to the expiry status returned by the authentication API. The 90-day expiry period starts from the date when the password was last changed.
 </Note>
+
+## Global Configuration
+
+The Authiqa Widget supports a centralized configuration approach that allows you to define styling and messaging options once and apply them across all authentication forms on your website.
+
+### How It Works
+
+1. Create a JavaScript file (e.g., `global-config.js`) with your customization settings
+2. Include this file in your HTML pages before the Authiqa widget script
+3. The widget will automatically apply these settings to all forms
+
+```html
+<head>
+    <!-- Include the global config first -->
+    <script src="/path/to/global-config.js"></script>
+    <script 
+        src="https://widget.authiqa.com" 
+        defer 
+        data-api-key="YOUR_API_KEY" 
+        action="signin"
+    ></script>
+</head>
+```
+
+<Note>
+The global configuration file can have any name you choose - it doesn't have to be named "global-config.js". What matters is that it defines the `window.AuthiqaGlobalConfig` object and is loaded before the widget script.
+</Note>
+
+### Global Configuration Structure
+
+The global configuration uses a `window.AuthiqaGlobalConfig` object with two main sections:
+- `customization`: Contains all styling and layout options
+- `messages`: Contains custom success and loading messages
+
+```javascript
+// Global configuration for Authiqa Widget
+window.AuthiqaGlobalConfig = {
+    customization: {
+        // Layout, colors, typography, etc.
+    },
+    messages: {
+        // Custom success and loading messages
+    }
+};
+```
+
+### Available Global Customization Options
+
+The global configuration supports all the same customization options available through the `data-customization` attribute, including:
+
+#### Layout and Colors
+```javascript
+customization: {
+    // Layout
+    layout: {
+        padding: "1.5rem",
+        borderRadius: "8px",
+        maxWidth: "400px"
+    },
+    
+    // Colors
+    colors: {
+        background: "#27272a",
+        buttonBackground: "#10D5C6",
+        buttonText: "#1F2025",
+        inputBackground: "#212125",
+        inputText: "#ffffff",
+        inputPlaceholder: "#71717a",
+        borderColor: "#3f3f46",
+        inputFocusBorderColor: "#10D5C6",
+        inputFocusBoxShadow: "0 0 0 2px rgba(16, 213, 198, 0.25)",
+        buttonHoverBackground: "#0fbfb1"
+    },
+    
+    // Page Layout
+    pageLayout: {
+        backgroundColor: "#212125"
+    }
+}
+```
+
+#### Typography and Buttons
+```javascript
+customization: {
+    // Typography
+    typography: {
+        titleText: {
+            signinText: "Sign In",
+            signupText: "Get Started",
+            resetText: "Forgotten Password?",
+            updateText: "Update Password",
+            verifyText: "Verify Email",
+            resendText: "Resend Confirmation Email"
+        },
+        subtitleText: {
+            signinText: "Welcome back to your account",
+            signupText: "Start Authenticating users in minutes",
+            resetText: "We'll send you a reset link",
+            updateText: "Create a new secure password",
+            resendText: "Didn't receive the email?"
+        },
+        titleSize: "1.9rem",
+        titleColor: "#10D5C6",
+        titleAlignment: "left",
+        titleWeight: "800",
+        titleLineHeight: "1.2",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        termsText: {
+            agreePrefix: "I agree with the",
+            andConnector: "and",
+            defaultPrefix: "default",
+            linkText: {
+                terms: "Terms of Service",
+                privacy: "Privacy Policy",
+                notifications: "Notification Settings"
+            },
+            textColor: "#ffffff",
+            linkColor: "#10D5C6"
+        }
+    },
+    
+    // Buttons
+    buttons: {
+        height: "2.5rem",
+        borderRadius: "4px"
+    }
+}
+```
+
+#### Advanced CSS
+```javascript
+customization: {
+    // Advanced CSS (custom CSS that will be injected)
+    advancedCSS: `
+        /* Add subtitle after h1 */
+        .authiqa-container h1:after {
+            content: attr(data-subtitle);
+            display: block;
+            color: #ffffff !important;
+            font-size: 0.7rem !important;
+            font-weight: 400 !important;
+            margin-top: 0.4rem !important;
+            line-height: 0.6 !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Input focus state */
+        .authiqa-container input:focus {
+            border-color: #10D5C6 !important;
+            box-shadow: 0 0 0 2px rgba(16, 213, 198, 0.25) !important;
+        }
+        
+        /* Button hover state */
+        .authiqa-container button[type="submit"]:hover {
+            background-color: #0fbfb1 !important;
+        }
+        
+        /* Title alignment */
+        .authiqa-container h1 {
+            text-align: left !important;
+            font-weight: 800 !important;
+            line-height: 1.2 !important;
+        }
+    `
+}
+```
+
+### Global Messages
+
+The global configuration also supports custom messages for different authentication actions:
+
+```javascript
+messages: {
+    signupSuccess: "Account created successfully! Please check your email for verification.",
+    signupLoading: "Creating your account...",
+    signinSuccess: "Welcome back! You've successfully signed in.",
+    resetSuccess: "Password reset link sent! Please check your email.",
+    resetLoading: "Sending password reset link...",
+    updateSuccess: "Password updated successfully! You can now sign in with your new password.",
+    updateLoading: "Updating your password...",
+    resendSuccess: "Confirmation email sent! Please check your inbox.",
+    resendLoading: "Sending confirmation email..."
+}
+```
+
+### Overriding Global Settings
+
+You can override global settings on a per-page basis by providing customization attributes directly in the widget script tag:
+
+```html
+<script
+    src="https://widget.authiqa.com"
+    defer
+    data-api-key="YOUR_API_KEY"
+    data-customization='{
+        "colors": {
+            "buttonBackground": "#FF5500"
+        }
+    }'
+></script>
+```
+
+Page-specific settings will take precedence over global settings for the same properties.
+
+<Note>
+The global configuration is particularly useful for maintaining consistent branding across all authentication forms on your website. It reduces duplication and makes it easier to update the styling of all forms at once.
+</Note>
+
+### Complete Global Configuration Example
+
+Here's a complete example of a global configuration file:
+
+```javascript
+// global-config.js
+window.AuthiqaGlobalConfig = {
+    customization: {
+        // Layout
+        layout: {
+            padding: "1.5rem",
+            borderRadius: "8px",
+            maxWidth: "400px"
+        },
+        
+        // Colors
+        colors: {
+            background: "#27272a",
+            buttonBackground: "#10D5C6",
+            buttonText: "#1F2025",
+            inputBackground: "#212125",
+            inputText: "#ffffff",
+            inputPlaceholder: "#71717a",
+            borderColor: "#3f3f46",
+            inputFocusBorderColor: "#10D5C6",
+            inputFocusBoxShadow: "0 0 0 2px rgba(16, 213, 198, 0.25)",
+            buttonHoverBackground: "#0fbfb1"
+        },
+        
+        // Typography
+        typography: {
+            titleText: {
+                signinText: "Sign In",
+                signupText: "Get Started",
+                resetText: "Forgotten Password?",
+                updateText: "Update Password",
+                verifyText: "Verify Email",
+                resendText: "Resend Confirmation Email"
+            },
+            subtitleText: {
+                signinText: "Welcome back to your account",
+                signupText: "Start Authenticating users in minutes",
+                resetText: "We'll send you a reset link",
+                updateText: "Create a new secure password",
+                resendText: "Didn't receive the email?"
+            },
+            titleSize: "1.9rem",
+            titleColor: "#10D5C6",
+            titleAlignment: "left",
+            titleWeight: "800",
+            titleLineHeight: "1.2",
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            termsText: {
+                agreePrefix: "I agree with the",
+                andConnector: "and",
+                defaultPrefix: "default",
+                linkText: {
+                    terms: "Terms of Service",
+                    privacy: "Privacy Policy",
+                    notifications: "Notification Settings"
+                },
+                textColor: "#ffffff",
+                linkColor: "#10D5C6"
+            }
+        },
+        
+        // Buttons
+        buttons: {
+            height: "2.5rem",
+            borderRadius: "4px"
+        },
+        
+        // Page Layout
+        pageLayout: {
+            backgroundColor: "#212125"
+        },
+        
+        // Advanced CSS
+        advancedCSS: `
+            /* Custom CSS here */
+        `
+    },
+    
+    // Custom messages
+    messages: {
+        signupSuccess: "Account created successfully! Please check your email for verification.",
+        signupLoading: "Creating your account...",
+        signinSuccess: "Welcome back! You've successfully signed in.",
+        resetSuccess: "Password reset link sent! Please check your email.",
+        resetLoading: "Sending password reset link...",
+        updateSuccess: "Password updated successfully! You can now sign in with your new password.",
+        updateLoading: "Updating your password...",
+        resendSuccess: "Confirmation email sent! Please check your inbox.",
+        resendLoading: "Sending confirmation email..."
+    }
+};
+```
+
+### Hash-Based Navigation
+
+The widget now supports hash-based navigation, allowing users to switch between different authentication forms by changing the URL hash.
+
+```html
+<div id="authiqa"></div>
+
+<!-- Include the Authiqa widget -->
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-api-key="YOUR_API_KEY"
+></script>
+
+<!-- Include the hash navigation script -->
+<script src="https://widget.authiqa.com/latest/hash-navigation.js" defer></script>
+
+<!-- Optional navigation links -->
+<div class="auth-links">
+    <a href="#signin">Sign In</a>
+    <a href="#signup">Sign Up</a>
+    <a href="#reset">Reset Password</a>
+</div>
+```
+
+#### Navigation Priority
+
+The hash navigation follows these priority rules:
+
+1. If a URL hash is present (e.g., `#signin`), it will show the corresponding form
+2. If no hash is present, it will use the `action` attribute from the script tag
+3. If neither is available, it will default to the signin form
+
+This allows you to set a default form using the `action` attribute while still enabling hash-based navigation.
+
+#### Supported Hash Values
+
+The hash navigation script supports the following hash values:
+
+| Hash | Form Displayed |
+|------|---------------|
+| `#signin` | Sign In form |
+| `#signup` | Sign Up form |
+| `#verify` | Email Verification form |
+| `#reset` | Password Reset form |
+| `#update` | Password Update form |
+| `#resend` | Resend Confirmation form |
+
+#### How It Works
+
+- The hash navigation script automatically detects changes to the URL hash
+- When the hash changes to a valid action (e.g., `#signin`), the corresponding form is displayed
+- The script works with any URL structure as long as it contains a valid hash
+
+#### URL Examples
+
+The hash-based navigation works with any URL structure:
+
+- `https://example.com#signin`
+- `https://example.com/auth#signup`
+- `https://example.com/account/settings?user=123#reset`
+
+<Note>
+The hash navigation script must be included after the main widget script. It automatically uses the same configuration attributes (API key, theme, custom paths, etc.) from the main widget script.
+</Note>
+
+#### React Integration
+
+For React applications, you can use the hash navigation with the React wrapper:
+
+```jsx
+import { AuthiqaWidget } from 'authiqa-react';
+
+function App() {
+  // Include the hash navigation script in your HTML
+  // <script src="https://widget.authiqa.com/latest/hash-navigation.js" defer></script>
+  
+  return (
+    <div className="app">
+      <AuthiqaWidget 
+        apiKey="YOUR_API_KEY"
+        // No need to specify action - it will be determined by the hash
+      />
+      
+      {/* Optional navigation links */}
+      <div className="auth-links">
+        <a href="#signin">Sign In</a>
+        <a href="#signup">Sign Up</a>
+        <a href="#reset">Reset Password</a>
+      </div>
+    </div>
+  );
+}
+```
