@@ -17,7 +17,7 @@ This endpoint initiates a password reset flow by sending a reset link to the use
   Email address for the account
 </ParamField>
 
-<ParamField body="parentApiKey" type="string">
+<ParamField body="parentPublicKey" type="string">
   Required only for child accounts
 </ParamField>
 
@@ -77,8 +77,8 @@ Test the API by providing an email address:
     Email address to receive reset link
   </ParamField>
 
-  <ParamField path="parentApiKey" placeholder="APK_1234567890abcdef_1234">
-    Parent API Key (required for child accounts)
+  <ParamField path="parentPublicKey" placeholder="APK_1234567890abcdef_1234">
+    Parent public Key (required for child accounts)
   </ParamField>
 
   <Expandable title="Headers" defaultOpen>
@@ -99,7 +99,7 @@ Test the API by providing an email address:
 <Steps>
   <Step title="Request Validation">
     - Validate email format
-    - Check parent API key (if provided)
+    - Check parent public key (if provided)
     - Determine account type
     - Verify email confirmation
     - Check rate limiting
@@ -107,12 +107,12 @@ Test the API by providing an email address:
 
   <Step title="Account Validation">
     For Child Accounts:
-    - Validate parent API key
+    - Validate parent public key
     - Verify parent-child relationship
     - Check parent account status
 
     For Parent Accounts:
-    - Ensure no parent API key provided
+    - Ensure no parent public key provided
     - Verify ROOT status
   </Step>
 
@@ -121,7 +121,7 @@ Test the API by providing an email address:
     - Create encrypted reset token with:
       - Email
       - OTP
-      - Parent API key (for child accounts)
+      - Parent public key (for child accounts)
     - Build reset link
   </Step>
 
@@ -177,17 +177,17 @@ Test the API by providing an email address:
 
 ### Parent Account Errors
 <ResponseField name="400 Bad Request">
-  - `INVALID_REQUEST` - Parent API key provided for parent account
+  - `INVALID_REQUEST` - Parent public key provided for parent account
 </ResponseField>
 
 ### Child Account Errors
 <ResponseField name="400 Bad Request">
-  - `MISSING_PARENT_API_KEY` - Parent API key required
-  - `INVALID_PARENT_API_KEY_FORMAT` - Invalid API key format
+  - `MISSING_PARENT_PUBLIC_KEY` - Parent public key required
+  - `INVALID_PARENT_PUBLIC_KEY_FORMAT` - Invalid public key format
 </ResponseField>
 
 <ResponseField name="401 Unauthorized">
-  - `INVALID_PARENT_API_KEY` - Invalid parent API key
+  - `INVALID_PARENT_PUBLICI_KEY` - Invalid parent public key
 </ResponseField>
 
 ### General Errors

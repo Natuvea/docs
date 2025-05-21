@@ -17,7 +17,7 @@ description: 'Learn how you can integrate and configure the Authiqa authenticati
     defer
 
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_PUBLIC_KEY"
     action="signin"
 ></script>
 ```
@@ -29,7 +29,7 @@ description: 'Learn how you can integrate and configure the Authiqa authenticati
 The widget supports these configuration attributes:
 
 ### Required Attributes
-- `data-api-key`: Your API key
+- `data-public-key`: Your PUBLIC key
 - `action`: Authentication action (`signin`, `signup`, `reset`, `update`, `verify`, `resend`)
 - `defer`: For proper script loading
 
@@ -59,7 +59,7 @@ The widget can automatically detect the authentication action from the URL if no
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_PUBLIC_KEY"
 ></script>
 ```
 
@@ -175,7 +175,7 @@ This example shows how to combine custom CSS styling with URL-based action detec
     <script
         src="https://widget.authiqa.com"
         defer
-        data-api-key="YOUR_API_KEY"
+        data-public-key="YOUR_PUBLIC_KEY"
         data-customization='{
             "colors": {
                 "buttonText": "#ffffff"
@@ -288,7 +288,7 @@ Each authentication action (signin, signup, reset, update, verify, resend) has c
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_PUBLIC_KEY"
     action="signup"
     data-customization='{
         "pageLayout": {
@@ -403,7 +403,7 @@ The widget supports custom redirection paths for different authentication flows.
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="signup"
     verifyAuthPath="https://your-site.com/verify"
     // The verification email will include: https://your-site.com/verify?token=ABC123
@@ -413,7 +413,7 @@ The widget supports custom redirection paths for different authentication flows.
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="reset"
     updatePasswordPath="https://your-site.com/update-password"
     // The reset email will include: https://your-site.com/update-password?token=XYZ789
@@ -423,7 +423,7 @@ The widget supports custom redirection paths for different authentication flows.
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="verify"
     signinAuthPath="https://your-site.com/login"
     verifyAuthPath="https://your-site.com/verify"
@@ -443,7 +443,7 @@ The `verifyAuthPath` and `updatePasswordPath` are particularly important as they
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="signin"
 ></script>
 
@@ -451,7 +451,7 @@ The `verifyAuthPath` and `updatePasswordPath` are particularly important as they
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="signin"
     theme="dark"
 ></script>
@@ -460,7 +460,7 @@ The `verifyAuthPath` and `updatePasswordPath` are particularly important as they
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="signin"
     disable-styles="true"
 ></script>
@@ -498,7 +498,7 @@ widget.on('verify:success', () => {
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="signin"
     data-messages='{
         "signinSuccess": "Welcome back! Redirecting you to dashboard...",
@@ -512,7 +512,7 @@ widget.on('verify:success', () => {
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="signup"
     termsAndConditions="https://your-site.com/terms"
     privacy="https://your-site.com/privacy"
@@ -538,7 +538,7 @@ widget.on('verify:success', () => {
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="reset"
 ></script>
 ```
@@ -548,7 +548,7 @@ widget.on('verify:success', () => {
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="verify"
 ></script>
 ```
@@ -558,7 +558,7 @@ widget.on('verify:success', () => {
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="update"
 ></script>
 ```
@@ -568,7 +568,7 @@ widget.on('verify:success', () => {
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     action="resend"
 ></script>
 ```
@@ -613,7 +613,7 @@ function App() {
     <div className="app">
       <h1>My Application</h1>
       <AuthiqaWidget 
-        apiKey="YOUR_API_KEY"
+        publicKey="YOUR_public_KEY"
         action="signin"
         onSuccess={handleSuccess}
         onError={handleError}
@@ -652,7 +652,7 @@ This configuration is required for the Authiqa widget to initialize properly in 
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `apiKey` | string | Yes | - | Your Authiqa API key |
+| `publicKey` | string | Yes | - | Your Authiqa public key |
 | `action` | string | No | "signin" | Authentication action ("signin", "signup", "reset", "verify", "update", "resend") |
 | `theme` | string | No | "light" | Widget theme ("light", "dark") |
 | `mode` | string | No | "popup" | Display mode ("popup", "inline") |
@@ -675,7 +675,7 @@ The `customization` prop accepts an object with the following structure:
 
 ```jsx
 <AuthiqaWidget 
-  apiKey="YOUR_API_KEY"
+  publicKey="YOUR_public_KEY"
   action="signin"
   customization={{
     pageLayout: {
@@ -737,7 +737,7 @@ function AuthPage() {
 
   return (
     <AuthiqaWidget 
-      apiKey="YOUR_API_KEY"
+      publicKey="YOUR_public_KEY"
       action="signin"
       onSuccess={handleSuccess}
       onError={handleError}
@@ -765,7 +765,7 @@ function SignIn() {
     <div className="signin-page">
       <h1>Sign In</h1>
       <AuthiqaWidget 
-        apiKey="YOUR_API_KEY"
+        publicKey="YOUR_public_KEY"
         action="signin"
         onSuccess={handleSuccess}
         successAuthPath="/dashboard"
@@ -785,7 +785,7 @@ function SignUp() {
     <div className="signup-page">
       <h1>Create Account</h1>
       <AuthiqaWidget 
-        apiKey="YOUR_API_KEY"
+        publicKey="YOUR_public_KEY"
         action="signup"
         termsAndConditions="https://your-site.com/terms"
         privacy="https://your-site.com/privacy"
@@ -816,7 +816,7 @@ export default function AuthiqaSignIn() {
   
   return (
     <AuthiqaWidget 
-      apiKey={process.env.NEXT_PUBLIC_AUTHIQA_API_KEY}
+      publicKey={process.env.NEXT_PUBLIC_AUTHIQA_public_KEY}
       action="signin"
       onSuccess={handleSuccess}
     />
@@ -846,14 +846,14 @@ function App() {
     <Routes>
       <Route path="/login" element={
         <AuthiqaWidget 
-          apiKey="YOUR_API_KEY"
+          publicKey="YOUR_public_KEY"
           action="signin"
           successAuthPath="/dashboard"
         />
       } />
       <Route path="/signup" element={
         <AuthiqaWidget 
-          apiKey="YOUR_API_KEY"
+          publicKey="YOUR_public_KEY"
           action="signup"
           verifyAuthPath="/verify"
         />
@@ -922,7 +922,7 @@ The Authiqa Widget supports a centralized configuration approach that allows you
     <script 
         src="https://widget.authiqa.com" 
         defer 
-        data-api-key="YOUR_API_KEY" 
+        data-public-key="YOUR_public_KEY" 
         action="signin"
     ></script>
 </head>
@@ -1097,7 +1097,7 @@ You can override global settings on a per-page basis by providing customization 
 <script
     src="https://widget.authiqa.com"
     defer
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
     data-customization='{
         "colors": {
             "buttonBackground": "#FF5500"
@@ -1221,7 +1221,7 @@ The widget now supports hash-based navigation, allowing users to switch between 
 <script 
     defer
     src="https://widget.authiqa.com"
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_public_KEY"
 ></script>
 
 <!-- Include the hash navigation script -->
@@ -1273,7 +1273,7 @@ The hash-based navigation works with any URL structure:
 - `https://example.com/account/settings?user=123#reset`
 
 <Note>
-The hash navigation script must be included after the main widget script. It automatically uses the same configuration attributes (API key, theme, custom paths, etc.) from the main widget script.
+The hash navigation script must be included after the main widget script. It automatically uses the same configuration attributes (public key, theme, custom paths, etc.) from the main widget script.
 </Note>
 
 #### React Integration
@@ -1290,7 +1290,7 @@ function App() {
   return (
     <div className="app">
       <AuthiqaWidget 
-        apiKey="YOUR_API_KEY"
+        publicKey="YOUR_public_KEY"
         // No need to specify action - it will be determined by the hash
       />
       

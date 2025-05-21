@@ -51,7 +51,7 @@
                     "format": "password",
                     "description": "Password meeting security requirements"
                   },
-                  "parentApiKey": {
+                  "parentPublicKey": {
                     "type": "string",
                     "pattern": "^APK_[a-f0-9]{32}_\\d+$",
                     "description": "Required only for child account creation"
@@ -87,7 +87,7 @@
                         "createdAt": {
                           "type": "number"
                         },
-                        "apiKey": {
+                        "publicKey": {
                           "type": "string"
                         },
                         "emailVerified": {
@@ -163,7 +163,7 @@
                     "type": "string",
                     "format": "password"
                   },
-                  "parentApiKey": {
+                  "parentPublicKey": {
                     "type": "string"
                   }
                 }
@@ -196,7 +196,7 @@
                             "username": { "type": "string" },
                             "accountType": { "type": "string" },
                             "parentAccount": { "type": "string" },
-                            "apiKey": { "type": "string" }
+                            "publicKey": { "type": "string" }
                           }
                         }
                       }
@@ -659,13 +659,13 @@
         "parameters": [
           {
             "in": "header",
-            "name": "X-Api-Key",
+            "name": "X-Public-Key",
             "required": true,
             "schema": {
               "type": "string",
               "pattern": "^APK_[a-f0-9]{32}_\\d+$"
             },
-            "description": "API key for authentication"
+            "description": "public key for authentication"
           }
         ],
         "responses": {
@@ -743,8 +743,8 @@
                         "code": {
                           "type": "string",
                           "enum": [
-                            "MISSING_PARENT_API_KEY",
-                            "INVALID_PARENT_API_KEY_FORMAT",
+                            "MISSING_PARENT_PUBLIC_KEY",
+                            "INVALID_PARENT_PUBLIC_KEY_FORMAT",
                             "INVALID_PARENT_ACCOUNT"
                           ]
                         },
@@ -1011,7 +1011,7 @@
                     "format": "password",
                     "description": "New password meeting security requirements"
                   },
-                  "parentApiKey": {
+                  "parentPublicKey": {
                     "type": "string",
                     "pattern": "^APK_[a-f0-9]{32}_\\d+$",
                     "description": "Required for child accounts"
@@ -1067,8 +1067,8 @@
                             "TOKEN_NOT_PROVIDED",
                             "INVALID_TOKEN",
                             "INVALID_PASSWORD_FORMAT",
-                            "MISSING_PARENT_API_KEY",
-                            "INVALID_PARENT_API_KEY_FORMAT"
+                            "MISSING_PARENT_PUBLIC_KEY",
+                            "INVALID_PARENT_PUBLIC_KEY_FORMAT"
                           ]
                         },
                         "message": {

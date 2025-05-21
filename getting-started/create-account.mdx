@@ -38,7 +38,7 @@ Authiqa uses a parent-child account structure:
 ### Child Account
 Same requirements as parent account, but:
 - Created through widget integration
-- Parent API key handled automatically
+- Parent public key handled automatically
 - No manual configuration needed
 
 ## Creating a Parent Account
@@ -55,28 +55,28 @@ Same requirements as parent account, but:
     Check inbox for verification link
   </Step>
 
-  <Step title="Get API Key">
-    API key needed for widget integration
+  <Step title="Get public Key">
+    public key needed for widget integration
   </Step>
 </Steps>
 
 ## Creating Child Accounts
 
-Child accounts are created automatically through the widget when integrated with your parent API key. No manual setup required.
+Child accounts are created automatically through the widget when integrated with your parent public key. No manual setup required.
 
 <Note>
-The widget handles all child account creation using the parent's API key configured during integration.
+The widget handles all child account creation using the parent's public key configured during integration.
 </Note>
 
 ## Next Steps
 
 <CardGroup cols={2}>
   <Card
-    title="Get API Key"
+    title="Get public Key"
     icon="key"
     href="/getting-started/api-keys"
   >
-    Generate your API key
+    Generate your public key
   </Card>
   <Card
     title="Widget Setup"

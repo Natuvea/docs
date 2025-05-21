@@ -20,7 +20,7 @@ Authenticate users and receive JWT tokens for both parent and child accounts.
   User's password
 </ParamField>
 
-<ParamField body="parentApiKey" type="string">
+<ParamField body="parentPublicKey" type="string">
   Required only for child accounts
 </ParamField>
 
@@ -36,7 +36,7 @@ Authenticate users and receive JWT tokens for both parent and child accounts.
 {
   "email": "child@example.com",
   "password": "Password123!",
-  "parentApiKey": "APK_1234567890abcdef_1234"
+  "parentPublicKey": "APK_1234567890abcdef_1234"
 }
 ```
 </RequestExample>
@@ -56,8 +56,8 @@ Test the API by filling in the values and clicking Send:
     Password
   </ParamField>
 
-  <ParamField path="parentApiKey" placeholder="APK_1234567890abcdef_1234">
-    Parent API Key (required for child accounts)
+  <ParamField path="parentPublicKey" placeholder="APK_1234567890abcdef_1234">
+    Parent public Key (required for child accounts)
   </ParamField>
 
   <Expandable title="Headers" defaultOpen>
@@ -138,7 +138,7 @@ curl_close($ch);
       "username": "user123",
       "accountType": "parent",
       "parentAccount": "ROOT",
-      "apiKey": "APK_xxx"
+      "publicKey": "APK_xxx"
     }
   }
 }
@@ -176,12 +176,12 @@ curl_close($ch);
   - `MISSING_REQUEST_BODY` - Request body required
   - `INVALID_REQUEST_BODY` - Invalid JSON format
   - `MISSING_REQUIRED_FIELDS` - Missing email/password
-  - `MISSING_PARENT_API_KEY` - Parent API key required for child accounts
+  - `MISSING_PARENT_PUBLIC_KEY` - Parent public key required for child accounts
 </ResponseField>
 
 <ResponseField name="401 Unauthorized">
   - `INVALID_CREDENTIALS` - Invalid email or password
-  - `INVALID_PARENT_API_KEY` - Invalid parent API key
+  - `INVALID_PARENT_PUBLIC_KEY` - Invalid parent public key
 </ResponseField>
 
 <ResponseField name="403 Forbidden">

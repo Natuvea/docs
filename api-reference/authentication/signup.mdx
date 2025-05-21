@@ -24,7 +24,7 @@ Create a new user account, either as a parent organization account or a child ac
   Password meeting security requirements
 </ParamField>
 
-<ParamField body="parentApiKey" type="string">
+<ParamField body="parentPublicKey" type="string">
   Required only for child account creation
 </ParamField>
 
@@ -42,7 +42,7 @@ Create a new user account, either as a parent organization account or a child ac
   "username": "childuser",
   "email": "child@company.com",
   "password": "SecurePass123!",
-  "parentApiKey": "APK_1234567890abcdef_1234567890"
+  "parentPublicKey": "APK_1234567890abcdef_1234567890"
 }
 ```
 </RequestExample>
@@ -66,8 +66,8 @@ Test the API by filling in the values and clicking Send:
     Secure password
   </ParamField>
 
-  <ParamField path="parentApiKey" placeholder="APK_1234567890abcdef_1234">
-    Parent API Key (for child accounts)
+  <ParamField path="parentPublicKey" placeholder="APK_1234567890abcdef_1234">
+    Parent public Key (for child accounts)
   </ParamField>
 
   <Expandable title="Headers" defaultOpen>
@@ -167,7 +167,7 @@ curl_close($ch);
       "username": "testuser",
       "email": "user@example.com",
       "createdAt": 1729616234,
-      "apiKey": "APK_abc123def456_1234567890",
+      "publicKey": "APK_abc123def456_1234567890",
       "emailVerified": false,
       "parentAccount": null
     }

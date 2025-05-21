@@ -12,13 +12,13 @@ Child accounts allow organizations to create and manage accounts that:
 
 ## Creating Child Accounts
 
-Child accounts are created through the widget using your parent API key:
+Child accounts are created through the widget using your parent public key:
 
 ```html
 <script
   src="https://widget.authiqa.com"
   defer
-  data-api-key="YOUR_API_KEY"
+  data-public-key="YOUR_PUBLIC_KEY"
   action="signup"
 ></script>
 ```
@@ -28,7 +28,7 @@ Child accounts are created through the widget using your parent API key:
 - Username (unique under parent account)
 - Email (unique under parent account)
 - Password (8+ characters with uppercase, lowercase, number, special char)
-- Parent's API key (automatically handled by widget)
+- Parent's PUBLIC key (automatically handled by widget)
 
 ## Viewing Child Accounts
 

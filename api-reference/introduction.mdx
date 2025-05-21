@@ -11,15 +11,15 @@ Authiqa provides a RESTful API for authentication and user management. All API r
 ## Authentication
 
 All API endpoints require authentication using either:
-- API Key (for widget integrations)
+- PUBLIC Key (for widget integrations)
 - JWT Token (for authenticated requests)
 
 
 
-Add your API key to requests using the `X-Api-Key` header:
+Add your public key to requests using the `X-Public-Key` header:
 
 ```bash
-curl -H "X-Api-Key: YOUR_API_KEY" https://api.authiqa.com/auth/signup
+curl -H "X-Public-Key: YOUR_PUBLIC_KEY" https://api.authiqa.com/auth/signup
 ```
 
 ## Request Format
@@ -57,11 +57,11 @@ Or for errors:
   - `MISSING_REQUEST_BODY` - Request body is required
   - `INVALID_REQUEST_BODY` - Invalid JSON in request body
   - `MISSING_REQUIRED_FIELDS` - Required fields are missing
-  - `INVALID_API_KEY_FORMAT` - API key format is invalid
+  - `INVALID_PUBLIC_KEY_FORMAT` - Public key format is invalid
 </ResponseField>
 
 <ResponseField name="401" type="Unauthorized">
-  - `INVALID_API_KEY` - API key is invalid or expired
+  - `INVALID_PUBLIC_KEY` - public key is invalid or expired
   - `INVALID_TOKEN` - JWT token is invalid or expired
 </ResponseField>
 

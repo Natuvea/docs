@@ -21,7 +21,7 @@ fetch('https://api.authiqa.com/auth/update-organization', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'X-Api-Key': 'YOUR_API_KEY'
+    'X-Public-Key': 'YOUR_PUBLIC_KEY'
   },
   body: JSON.stringify({
     organizationName: 'Your Company',
@@ -39,7 +39,7 @@ Child accounts inherit the parent's organization details.
 ### Theme Options
 ```javascript
 const widget = new AuthiqaWidget({
-  apiKey: 'YOUR_API_KEY',
+  publicKey: 'YOUR_PUBLIC_KEY',
   container: 'authiqa',
   theme: 'light', // or 'dark'
   mode: 'popup'   // or 'redirect'
@@ -75,7 +75,7 @@ Child accounts' emails use their parent organization's branding.
   <script
     src="https://widget.authiqa.com"
     defer
-    data-api-key="YOUR_API_KEY"
+    data-public-key="YOUR_PUBLIC_KEY"
     action="signin"
   ></script>
 </body>

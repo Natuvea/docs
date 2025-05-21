@@ -21,7 +21,7 @@ This endpoint allows users to update their password using a secure reset token o
   New password meeting security requirements
 </ParamField>
 
-<ParamField body="parentApiKey" type="string">
+<ParamField body="parentPublicKey" type="string">
   Required only for child accounts
 </ParamField>
 
@@ -126,7 +126,7 @@ Test the API by providing your reset token and new password:
     - Verify user exists
     - Check OTP matches stored value
     - Validate OTP hasn't expired
-    - Verify correct parent API key (for child accounts)
+    - Verify correct parent public key (for child accounts)
   </Step>
 
   <Step title="Password Update">
@@ -180,12 +180,12 @@ Test the API by providing your reset token and new password:
   - `TOKEN_NOT_PROVIDED` - Reset token required
   - `INVALID_TOKEN` - Invalid/malformed token
   - `INVALID_PASSWORD_FORMAT` - Password requirements not met
-  - `MISSING_PARENT_API_KEY` - Parent API key required for child accounts
-  - `INVALID_PARENT_API_KEY_FORMAT` - Invalid API key format
+  - `MISSING_PARENT_PUBLIC_KEY` - Parent public key required for child accounts
+  - `INVALID_PARENT_PUBLIC_KEY_FORMAT` - Invalid public key format
 </ResponseField>
 
 <ResponseField name="401 Unauthorized">
-  - `INVALID_PARENT_API_KEY` - Invalid parent API key
+  - `INVALID_PARENT_PUBLIC_KEY` - Invalid parent public key
 </ResponseField>
 
 <ResponseField name="403 Forbidden">
@@ -216,5 +216,5 @@ Test the API by providing your reset token and new password:
   - Contains encrypted:
     - User email
     - OTP code
-    - Parent API key (for child accounts)
+    - Parent public key (for child accounts)
 </Card>
