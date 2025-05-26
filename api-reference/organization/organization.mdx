@@ -8,9 +8,10 @@ api: 'POST https://api.authiqa.com/auth/update-organization'
 
 ## Overview
 
-This endpoint allows parent account holders to customize their organization details and authentication URLs for white-labeling. The endpoint supports two modes of operation:
+This endpoint allows parent account holders to customize their organization details and authentication URLs for white-labeling. The endpoint supports three modes of operation:
 1. Initial Setup - Set organization name and URL
 2. Auth URLs Update - Modify specific authentication URLs
+3. Domain Restriction Toggle - Control domain validation for the widget
 
 ## API Details
 
@@ -31,6 +32,13 @@ This endpoint allows parent account holders to customize their organization deta
 #### Mode 2: Auth URLs Update
 <ParamField body="authUrls" type="object">
   Optional authentication URLs configuration. Only specified URLs will be updated.
+</ParamField>
+
+#### Mode 3: Domain Restriction Toggle
+<ParamField body="domainRestrictionEnabled" type="boolean">
+  Controls whether the authentication widget is restricted to the organization's domain.
+  When `true` (default): Widget only works on the organization's domain.
+  When `false`: Widget works on any domain (for testing purposes).
 </ParamField>
 
 ### Default Auth URLs
@@ -86,6 +94,18 @@ const response = await fetch('https://api.authiqa.com/auth/update-organization',
       signin: 'https://auth.example.com/signin',
       signup: 'https://auth.example.com/signup'
     }
+  })
+});
+
+// Mode 3: Toggle domain restriction
+const response = await fetch('https://api.authiqa.com/auth/update-organization', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    domainRestrictionEnabled: false
   })
 });
 ```
@@ -178,6 +198,16 @@ Select a mode and test the API:
         </ParamField>
       </Expandable>
     </Tab>
+
+    <Tab title="Mode 3: Domain Restriction">
+      <ParamField header="Authorization" required placeholder="Bearer YOUR_JWT_TOKEN">
+        JWT token for authentication
+      </ParamField>
+
+      <ParamField body="domainRestrictionEnabled" type="boolean" default="true">
+        Toggle domain restriction for the authentication widget
+      </ParamField>
+    </Tab>
   </Tabs>
 
   <Expandable title="Headers" defaultOpen>
@@ -238,6 +268,21 @@ Select a mode and test the API:
 ```
 </ResponseField>
 
+### Mode 3: Domain Restriction Toggle Response
+<ResponseField name="200: Success">
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Domain restriction setting updated successfully",
+    "data": {
+      "domainRestrictionEnabled": false
+    }
+  }
+}
+```
+</ResponseField>
+
 ## Error Codes
 
 <ResponseField name="400 Bad Request">
@@ -268,6 +313,17 @@ Select a mode and test the API:
   </Card>
 </CardGroup>
 
+## Domain Restriction Feature
+
+<Card title="Domain Restriction Toggle" icon="shield-alt">
+The domain restriction toggle controls where your authentication widget can be used:
+
+- **Enabled (Default)**: Widget only works on your organization's domain, providing security against unauthorized use
+- **Disabled**: Widget works on any domain, useful for testing on platforms like JSFiddle or local development environments
+
+This setting can be toggled independently without affecting other organization settings.
+</Card>
+
 ## Important Notes
 
 <Note>
@@ -275,4 +331,5 @@ Select a mode and test the API:
 - Auth URLs can be updated individually without affecting other URLs
 - Default auth URLs are automatically generated during initial setup
 - Auth URLs must match the organization's domain
+- Domain restriction is enabled by default for security but can be disabled for testing purposes
 </Note>

@@ -126,7 +126,8 @@ Test the API by providing your public key:
       "update": "https://example.com/update",
       "resend": "https://example.com/resend",
       "successful": "https://example.com/success"
-    }
+    },
+    "domainRestrictionEnabled": true
   }
 }
 ```
@@ -181,12 +182,13 @@ All authentication URLs must be:
   - Success redirects
 </Card>
 
-## Usage Notes
+## Domain Restriction
 
-<Note>
-Each request increments a counter for usage tracking and billing purposes.
-</Note>
+<Card title="Domain Restriction Setting" icon="shield-check">
+The API response includes a `domainRestrictionEnabled` boolean field that indicates whether the authentication widget is restricted to the organization's domain:
 
-<Warning>
-URLs are cached for 5 minutes to improve performance. Changes may take up to 5 minutes to propagate.
-</Warning>
+- When `true` (default): Widget only works on the organization's domain
+- When `false`: Widget works on any domain (for testing purposes)
+
+This setting helps control where the authentication widget can be used, providing security while allowing flexibility for testing.
+</Card>

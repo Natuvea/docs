@@ -1304,3 +1304,19 @@ function App() {
   );
 }
 ```
+
+## Domain Restriction
+
+The Authiqa widget includes a domain restriction feature that controls where the widget can be used:
+
+<Card title="Domain Restriction" icon="shield-check">
+By default, the widget is restricted to work only on the organization's domain for security purposes. This prevents unauthorized use of your authentication widget on other websites.
+
+For testing purposes (such as on JSFiddle, CodePen, or local development environments), this restriction can be disabled through the organization settings API.
+
+The domain restriction status can be checked via the [Get Organization Details](/api-reference/organization/organization-details) API and toggled using the [Update Organization](/api-reference/organization/organization) API.
+</Card>
+
+<Note>
+When developing locally or in test environments where the domain doesn't match your organization's domain, you may need to temporarily disable domain restriction through the API.
+</Note>
