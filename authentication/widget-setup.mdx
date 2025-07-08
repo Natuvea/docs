@@ -257,12 +257,24 @@ The widget supports extensive customization through the `data-customization` att
         "passwordPlaceholder": "Enter your password",
         "usernamePlaceholder": "Choose a username",
         "confirmPasswordPlaceholder": "Confirm your password",
-        
+
         // Label text customization
         "emailLabel": "Email Address",
         "passwordLabel": "Password",
         "usernameLabel": "Username",
-        "confirmPasswordLabel": "Confirm Password"
+        "confirmPasswordLabel": "Confirm Password",
+
+        // Input field styling
+        "height": "48px",
+        "width": "100%",
+        "padding": "12px 16px",
+        "margin": "8px 0",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "borderRadius": "8px",
+        "focusBorderColor": "#10D5C6",
+        "focusBoxShadow": "0 0 0 2px rgba(16, 213, 198, 0.25)",
+        "placeholderAlign": "left"
     },
     "buttons": {
         "signinText": "Sign In",
@@ -280,12 +292,39 @@ The widget supports extensive customization through the `data-customization` att
 
 <Note>
 Each authentication action (signin, signup, reset, update, verify, resend) has corresponding customizable text for both its title and button. This allows for complete white-labeling of all authentication forms.
+
+All labels are properly associated with their input fields using the `for` attribute for improved accessibility. This allows users to click on labels to focus the corresponding input field and improves screen reader compatibility.
 </Note>
+
+### Input Field Customization Options
+
+The widget now supports extensive customization of input fields through the `customization.inputs` object:
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `emailPlaceholder` | string | Placeholder text for email input | "Your work email" |
+| `passwordPlaceholder` | string | Placeholder text for password input | "Create a strong password" |
+| `usernamePlaceholder` | string | Placeholder text for username input | "Choose a username" |
+| `confirmPasswordPlaceholder` | string | Placeholder text for confirm password input | "Re-enter your password" |
+| `emailLabel` | string | Label text for email input | "Email Address" |
+| `passwordLabel` | string | Label text for password input | "Password" |
+| `usernameLabel` | string | Label text for username input | "Username" |
+| `confirmPasswordLabel` | string | Label text for confirm password input | "Confirm Password" |
+| `height` | string | Height of input fields | "48px" |
+| `width` | string | Width of input fields | "100%" |
+| `padding` | string | Padding inside input fields | "12px 16px" |
+| `margin` | string | Margin around input fields | "8px 0" |
+| `fontSize` | string | Font size of input text | "16px" |
+| `fontWeight` | string | Font weight of input text | "400" |
+| `borderRadius` | string | Border radius of input fields | "8px" |
+| `focusBorderColor` | string | Border color when input is focused | "#10D5C6" |
+| `focusBoxShadow` | string | Box shadow when input is focused | "0 0 0 2px rgba(16, 213, 198, 0.25)" |
+| `placeholderAlign` | string | Text alignment for placeholder text | "left", "center", "right" |
 
 ### Complete Customization Example
 
 ```html
-<script 
+<script
     defer
     src="https://widget.authiqa.com"
     data-public-key="YOUR_PUBLIC_KEY"
@@ -320,7 +359,10 @@ Each authentication action (signin, signup, reset, update, verify, resend) has c
             "emailLabel": "Work Email",
             "passwordPlaceholder": "Create a strong password",
             "passwordLabel": "Create Password",
-            "usernameLabel": "Choose Username"
+            "usernameLabel": "Choose Username",
+            "height": "48px",
+            "borderRadius": "8px",
+            "focusBorderColor": "#4CAF50"
         },
         "buttons": {
             "signupText": "Create Account"
@@ -331,6 +373,298 @@ Each authentication action (signin, signup, reset, update, verify, resend) has c
 
 <Note>
 Labels follow accessibility best practices by being properly associated with their input fields using the `for` attribute. This improves usability for screen readers and allows users to click on the label to focus the input field.
+</Note>
+
+## Google SSO Integration
+
+The Authiqa widget includes built-in support for Google Single Sign-On (SSO) authentication. When Google SSO is enabled for your organization, the widget automatically displays Google authentication options without requiring additional configuration.
+
+### Quick Setup Checklist
+
+Before diving into the detailed setup, here's a quick checklist of what you need:
+
+- [ ] Google Cloud Console account
+- [ ] Google OAuth 2.0 Client ID and Secret
+- [ ] Authorized JavaScript Origins configured
+- [ ] Authorized Redirect URIs configured (including Authiqa callback)
+- [ ] Google+ API enabled
+- [ ] OAuth Consent Screen configured
+- [ ] Authiqa organization updated with Google credentials
+
+### Google SSO Features
+
+<CardGroup cols={2}>
+  <Card title="Google Sign-In Button" icon="google">
+    - Automatically appears below the main submit button on Sign In and Sign Up forms
+    - Only displayed when Google SSO is enabled for your organization
+    - Styled to match your widget's theme and customization
+    - Handles both sign-in and sign-up flows seamlessly
+  </Card>
+  <Card title="Google One Tap" icon="fingerprint">
+    - Displays Google's One Tap prompt for streamlined authentication
+    - Appears after the Google button is rendered (with a short delay)
+    - Only shown once per session to avoid repetitive prompts
+    - Provides the fastest authentication experience for returning users
+  </Card>
+</CardGroup>
+
+### How Google SSO Works
+
+1. **Automatic Detection**: The widget checks if Google SSO is enabled for your organization
+2. **Dynamic Rendering**: If enabled, a Google Sign-In/Sign-Up button appears below the main form
+3. **One Tap Integration**: Google One Tap prompt may appear for eligible users
+4. **Error Handling**: Clear error messages are displayed if Google authentication fails
+5. **Token Management**: Successful Google authentication follows the same token storage as regular authentication
+
+### Google SSO Setup Guide
+
+To enable Google SSO for your Authiqa widget, you need to configure Google OAuth credentials and update your organization settings. Follow this step-by-step guide:
+
+#### Step 1: Create Google OAuth Credentials
+
+1. **Go to Google Cloud Console**
+   - Visit [Google Cloud Console](https://console.cloud.google.com/)
+   - Sign in with your Google account
+
+2. **Create or Select a Project**
+   - If you don't have a project, click "Create Project"
+   - Give your project a name (e.g., "My App Authentication")
+   - Click "Create"
+
+3. **Enable Google+ API**
+   - In the left sidebar, go to "APIs & Services" > "Library"
+   - Search for "Google+ API"
+   - Click on it and press "Enable"
+
+4. **Configure OAuth Consent Screen**
+   - Go to "APIs & Services" > "OAuth consent screen"
+   - Choose "External" for user type (unless you're using Google Workspace)
+   - Fill in the required information:
+     - **App name**: Your application name
+     - **User support email**: Your support email
+     - **Developer contact information**: Your email
+   - Add your domain to "Authorized domains" (e.g., `yourdomain.com`)
+   - Save and continue through the remaining steps
+
+5. **Create OAuth 2.0 Credentials**
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth 2.0 Client IDs"
+   - Choose "Web application" as the application type
+   - Give it a name (e.g., "Authiqa Widget")
+
+#### Step 2: Configure Authorized URLs
+
+In the OAuth 2.0 client configuration, you need to add your authorized URLs:
+
+**Authorized JavaScript Origins:**
+```
+https://yourdomain.com
+https://www.yourdomain.com
+http://localhost:3000  (for local development)
+```
+
+**Authorized Redirect URIs:**
+```
+https://yourdomain.com
+https://www.yourdomain.com
+https://yourdomain.com/auth/callback
+https://api.authiqa.com/auth/google/callback
+http://localhost:3000  (for local development)
+```
+
+<Note>
+Replace `yourdomain.com` with your actual domain. Include both `www` and non-`www` versions if you use both. Always include the Authiqa callback URL: `https://api.authiqa.com/auth/google/callback`
+</Note>
+
+#### Step 3: Get Your Credentials
+
+After creating the OAuth client:
+
+1. **Copy the Client ID**
+   - You'll see a "Client ID" that looks like: `123456789-abcdefghijklmnop.apps.googleusercontent.com`
+   - Copy this value
+
+2. **Copy the Client Secret**
+   - You'll also see a "Client secret"
+   - Copy this value as well
+
+#### Step 4: Configure Authiqa Organization
+
+Use the Authiqa API to configure Google SSO for your organization:
+
+```bash
+curl -X PUT https://api.authiqa.com/organizations/{organization_id} \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "googleClientId": "YOUR_GOOGLE_CLIENT_ID",
+    "googleClientSecret": "YOUR_GOOGLE_CLIENT_SECRET",
+    "googleSSOEnabled": true
+  }'
+```
+
+<Note>
+Replace `{organization_id}` with your actual organization ID, and use your API token. You can find these values in your Authiqa dashboard.
+</Note>
+
+### Configuration Requirements
+
+Once you've completed the setup above, **no additional configuration is needed** in the widget code. The Google SSO feature is automatically handled based on your organization's backend settings. The widget will:
+
+1. Automatically detect that Google SSO is enabled
+2. Display the Google Sign-In/Sign-Up button
+3. Handle the authentication flow seamlessly
+
+### Testing Your Google SSO Setup
+
+#### Local Development Setup
+
+For testing during development, add localhost URLs to your Google OAuth configuration:
+
+**Authorized JavaScript Origins:**
+```
+http://localhost:3000
+http://localhost:8080
+http://127.0.0.1:3000
+```
+
+**Authorized Redirect URIs:**
+```
+http://localhost:3000
+http://localhost:8080
+http://127.0.0.1:3000
+https://api.authiqa.com/auth/google/callback
+```
+
+#### Verification Steps
+
+1. **Check Google Console**: Ensure your OAuth client is properly configured
+2. **Verify API Response**: Use the [Get Organization Details](/api-reference/organization/organization-details) API to confirm Google SSO is enabled
+3. **Test the Widget**: Load your authentication page and verify the Google button appears
+4. **Test Authentication**: Try signing in with a Google account
+
+### Common Google SSO Issues
+
+<CardGroup cols={2}>
+  <Card title="Google Button Not Appearing" icon="eye-slash">
+    **Possible Causes:**
+    - Google SSO not enabled in organization settings
+    - Invalid or missing Google Client ID
+    - Domain restrictions preventing widget load
+
+    **Solutions:**
+    - Verify organization configuration via API
+    - Check Google Client ID in organization settings
+    - Ensure domain is properly configured
+  </Card>
+  <Card title="Authentication Errors" icon="triangle-exclamation">
+    **Possible Causes:**
+    - Incorrect redirect URIs in Google Console
+    - Missing Authiqa callback URL
+    - Domain mismatch between widget and Google config
+
+    **Solutions:**
+    - Add all required redirect URIs
+    - Include `https://api.authiqa.com/auth/google/callback`
+    - Verify domain consistency
+  </Card>
+</CardGroup>
+
+### Google SSO Example
+
+```html
+<div id="authiqa"></div>
+<script
+    defer
+    src="https://widget.authiqa.com"
+    data-public-key="YOUR_PUBLIC_KEY"
+    action="signin"
+></script>
+<!-- Google SSO button will automatically appear if enabled -->
+```
+
+### Required Google Console Settings Summary
+
+For quick reference, here are the essential settings needed in Google Cloud Console:
+
+| Setting | Value | Notes |
+|---------|-------|-------|
+| **API** | Google+ API | Must be enabled |
+| **OAuth Consent Screen** | Configured with your app details | Include your domain in authorized domains |
+| **Application Type** | Web application | Required for web-based authentication |
+| **JavaScript Origins** | Your domain(s) + localhost for testing | Include both www and non-www versions |
+| **Redirect URIs** | Your domain(s) + Authiqa callback | Must include `https://api.authiqa.com/auth/google/callback` |
+
+### Google Authentication Flow
+
+The Google SSO integration supports both authentication flows:
+
+- **Sign In**: Existing users can sign in with their Google account
+- **Sign Up**: New users can create an account using their Google credentials
+- **Account Linking**: Users can link their existing Authiqa account with Google
+
+### Error Handling
+
+If Google authentication encounters an error, the widget displays clear error messages:
+
+- Network connectivity issues
+- Invalid Google credentials
+- Account linking conflicts
+- Organization-specific restrictions
+
+### Google SSO Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Domain Security" icon="shield-check">
+    **Authorized Domains:**
+    - Only add domains you control
+    - Use HTTPS in production
+    - Avoid wildcard domains
+    - Regularly review authorized domains
+  </Card>
+  <Card title="Credential Management" icon="key">
+    **Client Secrets:**
+    - Store client secrets securely
+    - Never expose secrets in frontend code
+    - Rotate credentials periodically
+    - Use environment variables for secrets
+  </Card>
+</CardGroup>
+
+### Environment-Specific Configuration
+
+#### Production Environment
+```bash
+# Production API call
+curl -X PUT https://api.authiqa.com/organizations/{organization_id} \
+  -H "Authorization: Bearer YOUR_PRODUCTION_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "googleClientId": "PRODUCTION_GOOGLE_CLIENT_ID",
+    "googleClientSecret": "PRODUCTION_GOOGLE_CLIENT_SECRET",
+    "googleSSOEnabled": true
+  }'
+```
+
+#### Development/Staging Environment
+```bash
+# Development API call
+curl -X PUT https://api.authiqa.com/organizations/{organization_id} \
+  -H "Authorization: Bearer YOUR_DEV_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "googleClientId": "DEVELOPMENT_GOOGLE_CLIENT_ID",
+    "googleClientSecret": "DEVELOPMENT_GOOGLE_CLIENT_SECRET",
+    "googleSSOEnabled": true
+  }'
+```
+
+<Note>
+**Important:** Use separate Google OAuth clients for different environments (development, staging, production) to maintain security isolation and proper URL configuration.
+</Note>
+
+<Note>
+Google SSO availability depends on your organization's configuration. Contact your administrator if you expect to see Google authentication options but they don't appear.
 </Note>
 
 ### Custom Messages
@@ -701,7 +1035,11 @@ The `customization` prop accepts an object with the following structure:
       emailPlaceholder: "Your email address",
       emailLabel: "Work Email",
       passwordPlaceholder: "Enter your password",
-      passwordLabel: "Password"
+      passwordLabel: "Password",
+      height: "48px",
+      borderRadius: "8px",
+      focusBorderColor: "#4CAF50",
+      placeholderAlign: "center"
     },
     buttons: {
       signinText: "Log In"
@@ -868,12 +1206,27 @@ function App() {
 }
 ```
 
+### Google SSO in React
+
+The React wrapper automatically supports Google SSO when it's enabled for your organization. No additional configuration is needed:
+
+```jsx
+<AuthiqaWidget
+  publicKey="YOUR_PUBLIC_KEY"
+  action="signin"
+  onSuccess={handleSuccess}
+  onError={handleError}
+/>
+// Google SSO button will automatically appear if enabled
+```
+
 ### Troubleshooting
 
 - **Widget not loading**: Ensure the script is included in your HTML and the container element exists
 - **Vite configuration issues**: Make sure to use the exact configuration provided in the Vite Configuration section
 - **Event handlers not firing**: Check that event names match expected values (`onSuccess`, `onError`)
 - **Styling conflicts**: Use the `customization` prop to override default styles or apply CSS targeting the widget container
+- **Google SSO not appearing**: Verify that Google SSO is enabled for your organization in the Authiqa dashboard
 
 ### Password Expiry Handling
 
@@ -1177,7 +1530,24 @@ window.AuthiqaGlobalConfig = {
                 linkColor: "#10D5C6"
             }
         },
-        
+
+        // Input Fields
+        inputs: {
+            emailPlaceholder: "Your work email",
+            passwordPlaceholder: "Create a strong password",
+            usernamePlaceholder: "Choose a username",
+            confirmPasswordPlaceholder: "Re-enter your password",
+            emailLabel: "Email Address",
+            passwordLabel: "Password",
+            usernameLabel: "Username",
+            confirmPasswordLabel: "Confirm Password",
+            height: "48px",
+            borderRadius: "8px",
+            focusBorderColor: "#10D5C6",
+            focusBoxShadow: "0 0 0 2px rgba(16, 213, 198, 0.25)",
+            placeholderAlign: "left"
+        },
+
         // Buttons
         buttons: {
             height: "2.5rem",
