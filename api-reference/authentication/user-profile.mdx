@@ -1,0 +1,322 @@
+---
+title: 'Get User Profile'
+description: 'Retrieve comprehensive user profile information'
+api: 'GET https://api.authiqa.com/auth/user-profile'
+---
+
+## Overview
+
+This endpoint retrieves comprehensive user profile information including account details, organization settings, authentication history, billing information, and usage statistics. Requires JWT authentication and returns different data based on account type.
+
+## API Details
+
+### Authentication
+
+<ParamField header="Authorization" type="string" required>
+  Bearer JWT token for authentication
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl -X GET https://api.authiqa.com/auth/user-profile \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.authiqa.com/auth/user-profile', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  }
+});
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.authiqa.com/auth/user-profile',
+    headers={
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Content-Type': 'application/json'
+    }
+)
+```
+
+```php PHP
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://api.authiqa.com/auth/user-profile');
+curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Authorization: Bearer YOUR_JWT_TOKEN',
+    'Content-Type: application/json'
+));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+```
+</RequestExample>
+
+## Try It Out
+
+<Note>
+Test the API by providing your JWT token:
+</Note>
+
+<Card>
+  <ParamField header="Authorization" placeholder="Bearer YOUR_JWT_TOKEN" required>
+    JWT token for authentication
+  </ParamField>
+
+  <Expandable title="Headers" defaultOpen>
+    <ParamField header="Content-Type" value="application/json" />
+  </Expandable>
+
+  <Button
+    onClick={() => {
+      alert('Sending request...');
+    }}
+  >
+    Send Request
+  </Button>
+</Card>
+
+## Response Examples
+
+<ResponseField name="200: Success - Parent Account">
+```json
+{
+  "success": true,
+  "data": {
+    "message": "User profile retrieved successfully",
+    "user": {
+      "userID": "USR_parent_12345",
+      "username": "parentuser",
+      "email": "parent@example.com",
+      "publicKey": "APK_abc123def456_1234567890",
+      "accountType": "parent",
+      "parentAccount": "ROOT",
+      "accountStatus": "active",
+      "emailVerified": true,
+      "createdAt": 1729616234,
+      "updatedAt": 1729616234,
+      "lastLogin": 1729616234,
+      "organizationName": "Example Corp",
+      "organizationUrl": "https://example.com",
+      "authUrls": {
+        "signin": "https://example.com/signin",
+        "signup": "https://example.com/signup"
+      },
+      "domainRestrictionEnabled": true,
+      "emailVerificationRequired": false,
+      "organizationId": null,
+      "authProvider": "email",
+      "lastLoginProvider": "email",
+      "googleId": null,
+      "accountBalance": 25.50,
+      "availableBalance": 23.75,
+      "organizationUpdateCount": 3,
+      "emailConfirmationCount": 1,
+      "resendEmailCount": 0,
+      "resetPasswordRequestCount": 0,
+      "passwordUpdateCount": 1,
+      "signInCount": 15,
+      "organizationDetailsRetrievalCount": 8,
+      "childAccountsListRetrievalCount": 2,
+      "lastPasswordChanged": 1729616234,
+      "loginAttempts": 0,
+      "lastLoginAttempt": null,
+      "googleSsoConfig": {
+        "enabled": true,
+        "clientId": "123456789-abcdefghijklmnop.apps.googleusercontent.com"
+      },
+      "lastLowBalanceNotificationAt": null,
+      "lastCriticalBalanceNotificationAt": null,
+      "lastDepletedBalanceNotificationAt": null,
+      "lockedUntil": null,
+      "lastResetPasswordRequestAt": null
+    }
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="200: Success - Child Account">
+```json
+{
+  "success": true,
+  "data": {
+    "message": "User profile retrieved successfully",
+    "user": {
+      "userID": "USR_child_67890",
+      "username": "childuser",
+      "email": "child@example.com",
+      "publicKey": "APK_def456ghi789_0987654321",
+      "accountType": "child",
+      "parentAccount": "APK_abc123def456_1234567890",
+      "accountStatus": "active",
+      "emailVerified": true,
+      "createdAt": 1729616234,
+      "updatedAt": 1729616234,
+      "lastLogin": 1729616234,
+      "organizationName": "Example Corp",
+      "organizationUrl": null,
+      "authUrls": null,
+      "domainRestrictionEnabled": true,
+      "emailVerificationRequired": false,
+      "organizationId": null,
+      "authProvider": "google",
+      "lastLoginProvider": "google",
+      "googleId": "google_user_id_12345",
+      "organizationUpdateCount": 0,
+      "emailConfirmationCount": 1,
+      "resendEmailCount": 0,
+      "resetPasswordRequestCount": 0,
+      "passwordUpdateCount": 0,
+      "signInCount": 8,
+      "organizationDetailsRetrievalCount": 0,
+      "childAccountsListRetrievalCount": 0,
+      "lastPasswordChanged": null,
+      "loginAttempts": 0,
+      "lastLoginAttempt": null,
+      "lastLowBalanceNotificationAt": null,
+      "lastCriticalBalanceNotificationAt": null,
+      "lastDepletedBalanceNotificationAt": null,
+      "lockedUntil": null,
+      "lastResetPasswordRequestAt": null
+    }
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="401: Unauthorized">
+```json
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid or missing authentication token"
+  }
+}
+```
+</ResponseField>
+
+## Response Fields
+
+### Core Identity
+<ResponseField name="userID" type="string">Unique user identifier</ResponseField>
+<ResponseField name="username" type="string">User's username</ResponseField>
+<ResponseField name="email" type="string">User's email address</ResponseField>
+<ResponseField name="publicKey" type="string">User's public API key</ResponseField>
+
+### Account Information
+<ResponseField name="accountType" type="string">Account type: "parent" or "child"</ResponseField>
+<ResponseField name="parentAccount" type="string">Parent account reference ("ROOT" for parents, parent's publicKey for children)</ResponseField>
+<ResponseField name="accountStatus" type="string">Account status: "active", "inactive", or "locked"</ResponseField>
+<ResponseField name="emailVerified" type="boolean">Whether email address is verified</ResponseField>
+<ResponseField name="createdAt" type="number">Account creation timestamp</ResponseField>
+<ResponseField name="updatedAt" type="number">Last account update timestamp</ResponseField>
+<ResponseField name="lastLogin" type="number">Last login timestamp</ResponseField>
+
+### Organization Details
+<ResponseField name="organizationName" type="string">Organization display name</ResponseField>
+<ResponseField name="organizationUrl" type="string">Organization base URL</ResponseField>
+<ResponseField name="authUrls" type="object">Authentication URLs configuration</ResponseField>
+<ResponseField name="domainRestrictionEnabled" type="boolean">Whether widget is domain-restricted</ResponseField>
+<ResponseField name="emailVerificationRequired" type="boolean">Whether email verification is required</ResponseField>
+
+### Authentication Details
+<ResponseField name="authProvider" type="string">Primary authentication provider: "email" or "google"</ResponseField>
+<ResponseField name="lastLoginProvider" type="string">Last used authentication provider</ResponseField>
+<ResponseField name="googleId" type="string">Google account ID (if linked)</ResponseField>
+
+### Billing Information (Parent Accounts Only)
+<ResponseField name="accountBalance" type="number">Total account balance</ResponseField>
+<ResponseField name="availableBalance" type="number">Available balance for operations</ResponseField>
+
+### Usage Statistics
+<ResponseField name="organizationUpdateCount" type="number">Number of organization updates</ResponseField>
+<ResponseField name="emailConfirmationCount" type="number">Email confirmations performed</ResponseField>
+<ResponseField name="resendEmailCount" type="number">Verification emails resent</ResponseField>
+<ResponseField name="resetPasswordRequestCount" type="number">Password reset requests</ResponseField>
+<ResponseField name="passwordUpdateCount" type="number">Password updates performed</ResponseField>
+<ResponseField name="signInCount" type="number">Total sign-in attempts</ResponseField>
+<ResponseField name="organizationDetailsRetrievalCount" type="number">Organization details retrievals</ResponseField>
+<ResponseField name="childAccountsListRetrievalCount" type="number">Child accounts list retrievals</ResponseField>
+
+### Security Information
+<ResponseField name="lastPasswordChanged" type="number">Last password change timestamp</ResponseField>
+<ResponseField name="loginAttempts" type="number">Failed login attempts counter</ResponseField>
+<ResponseField name="lastLoginAttempt" type="number">Last login attempt timestamp</ResponseField>
+<ResponseField name="lockedUntil" type="number">Account lock expiry timestamp</ResponseField>
+<ResponseField name="lastResetPasswordRequestAt" type="number">Last password reset request timestamp</ResponseField>
+
+### Google SSO Configuration (Parent Accounts Only)
+<ResponseField name="googleSsoConfig" type="object">
+Google SSO settings with enabled status and client ID
+</ResponseField>
+
+## Error Codes
+
+<ResponseField name="401 Unauthorized">
+- `UNAUTHORIZED` - Missing or invalid JWT token
+</ResponseField>
+
+<ResponseField name="403 Forbidden">
+- `ACCOUNT_INACTIVE` - Account is not in active status
+</ResponseField>
+
+<ResponseField name="404 Not Found">
+- `USER_NOT_FOUND` - User account not found in database
+</ResponseField>
+
+<ResponseField name="500 Internal Server Error">
+- `INTERNAL_ERROR` - Unexpected server error occurred
+</ResponseField>
+
+## Security Features
+
+<Card title="Data Security" icon="shield-check">
+**Sensitive Data Excluded**: The following sensitive fields are intentionally excluded from the response for security:
+- Hashed passwords
+- JWT signing secrets
+- Email verification tokens
+- Encryption keys and initialization vectors
+- Password reset tokens
+- Google OAuth client secrets
+</Card>
+
+<Card title="Access Control" icon="lock">
+**Authentication Required**: This endpoint requires valid JWT authentication and will only return data for the authenticated user.
+</Card>
+
+## Account Type Differences
+
+<CardGroup cols={2}>
+  <Card title="Parent Accounts" icon="building">
+    - Include billing information (balance fields)
+    - Include Google SSO configuration
+    - Include organization management counters
+    - Include notification timestamps
+    - Have organization settings and auth URLs
+  </Card>
+  <Card title="Child Accounts" icon="user-group">
+    - No billing information (uses parent's balance)
+    - No Google SSO configuration
+    - Limited organization management access
+    - Inherit parent's organization settings
+    - May have Google authentication details
+  </Card>
+</CardGroup>
+
+## Usage Notes
+
+<Note>
+This endpoint provides comprehensive user information for dashboard displays, account management interfaces, and user settings pages.
+</Note>
+
+<Warning>
+The response contains detailed usage statistics and timestamps. Handle this data appropriately and avoid exposing sensitive information in client-side applications.
+</Warning>

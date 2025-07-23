@@ -1,0 +1,267 @@
+---
+title: 'Google Authentication'
+description: 'Authenticate users with Google OAuth for child accounts'
+api: 'POST https://api.authiqa.com/auth/google'
+---
+
+## Overview
+
+This endpoint allows child users to authenticate using their Google account. The system supports both new user creation and linking existing accounts with Google authentication. Parent organizations can configure their own Google OAuth credentials for custom branding.
+
+## API Details
+
+### Request Format
+
+<ParamField body="idToken" type="string" required>
+  Google ID token received from Google OAuth flow
+</ParamField>
+
+<ParamField body="parentPublicKey" type="string" required>
+  Parent organization's public key for child account creation
+</ParamField>
+
+<RequestExample>
+```json Google Authentication
+{
+  "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE2NzAyN...",
+  "parentPublicKey": "APK_1234567890abcdef_1234567890"
+}
+```
+</RequestExample>
+
+## Try It Out
+
+<Note>
+Test the API by providing your Google ID token and parent public key:
+</Note>
+
+<Card>
+  <ParamField path="idToken" placeholder="eyJhbGciOiJSUzI1NiIsImtpZCI6IjE2NzAyN..." required>
+    Google ID token from OAuth flow
+  </ParamField>
+
+  <ParamField path="parentPublicKey" placeholder="APK_1234567890abcdef_1234" required>
+    Parent organization's public key
+  </ParamField>
+
+  <Expandable title="Headers" defaultOpen>
+    <ParamField header="Content-Type" value="application/json" />
+  </Expandable>
+
+  <Button
+    onClick={() => {
+      alert('Sending request...');
+    }}
+  >
+    Send Request
+  </Button>
+</Card>
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.authiqa.com/auth/google \
+  -H "Content-Type: application/json" \
+  -d '{
+    "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE2NzAyN...",
+    "parentPublicKey": "APK_1234567890abcdef_1234567890"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.authiqa.com/auth/google', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    idToken: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjE2NzAyN...',
+    parentPublicKey: 'APK_1234567890abcdef_1234567890'
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.authiqa.com/auth/google',
+    json={
+        'idToken': 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjE2NzAyN...',
+        'parentPublicKey': 'APK_1234567890abcdef_1234567890'
+    }
+)
+```
+
+```php PHP
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://api.authiqa.com/auth/google');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'idToken' => 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjE2NzAyN...',
+    'parentPublicKey' => 'APK_1234567890abcdef_1234567890'
+]));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+```
+</CodeGroup>
+
+## Authentication Flow
+
+<Steps>
+  <Step title="Google OAuth">
+    - User initiates Google sign-in on frontend
+    - Google returns ID token after successful authentication
+    - Frontend sends ID token to this endpoint
+  </Step>
+
+  <Step title="Token Verification">
+    - Validate Google ID token with Google's servers
+    - Extract user information (email, Google ID, name)
+    - Verify email is verified by Google
+  </Step>
+
+  <Step title="Parent Validation">
+    - Validate parent public key format and existence
+    - Check if parent has Google SSO configured
+    - Use parent's Google OAuth credentials if available
+  </Step>
+
+  <Step title="User Resolution">
+    - Check if user exists by Google ID
+    - If not found, check if email exists for account linking
+    - Create new user if no existing account found
+  </Step>
+
+  <Step title="Token Generation">
+    - Generate JWT token for authenticated user
+    - Update user's last login information
+    - Return authentication response
+  </Step>
+</Steps>
+
+## Response Examples
+
+<ResponseField name="200: Success - New User">
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "userID": "USR_google_12345",
+    "email": "user@gmail.com",
+    "username": "user_gmail_com",
+    "publicKey": "APK_abc123def456_1234567890"
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="200: Success - Existing User">
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "userID": "USR_existing_67890",
+    "email": "user@gmail.com",
+    "username": "existinguser",
+    "publicKey": "APK_def456ghi789_0987654321"
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="400: Invalid Token">
+```json
+{
+  "message": "Invalid Google token."
+}
+```
+</ResponseField>
+
+<ResponseField name="400: Email Not Verified">
+```json
+{
+  "message": "Email not verified by Google."
+}
+```
+</ResponseField>
+
+## Error Codes
+
+<ResponseField name="400 Bad Request">
+- `Invalid input` - Request body validation failed
+- `Missing or invalid parentPublicKey` - Parent public key required
+- `Invalid parentPublicKey format` - Public key format validation failed
+- `Invalid parent public key` - Parent account not found
+- `Invalid Google token` - Google ID token verification failed
+- `Email not verified by Google` - Google account email not verified
+</ResponseField>
+
+<ResponseField name="500 Internal Server Error">
+- `Failed to create or update user` - Database operation failed
+- `Failed to generate authentication token` - JWT generation failed
+- `Internal Server Error` - Unexpected server error
+</ResponseField>
+
+## Google OAuth Configuration
+
+### Parent Organization Setup
+Parent organizations can configure their own Google OAuth credentials:
+
+<CardGroup cols={2}>
+  <Card title="Custom OAuth" icon="google">
+    - Configure via Update Organization API
+    - Use organization's Google OAuth app
+    - Custom branding and domain restrictions
+    - Enhanced security and control
+  </Card>
+  <Card title="Default OAuth" icon="shield-check">
+    - Uses Authiqa's default Google OAuth
+    - Fallback when organization hasn't configured
+    - Standard Google authentication flow
+    - Basic functionality available
+  </Card>
+</CardGroup>
+
+### Required Google OAuth Scopes
+- `openid` - OpenID Connect authentication
+- `email` - Access to user's email address
+- `profile` - Access to basic profile information
+
+## Security Features
+
+<Card title="Security Validations" icon="shield-alt">
+- **Token Verification**: Google ID tokens verified with Google's servers
+- **Email Verification**: Only Google-verified emails accepted
+- **Parent Validation**: Parent public key format and existence validated
+- **Account Linking**: Secure linking of existing accounts with Google
+- **JWT Generation**: Secure JWT tokens for authenticated sessions
+</Card>
+
+## Account Creation
+
+### New Users
+- Username automatically generated from email
+- Account type set to "child" under specified parent
+- Google ID stored for future authentication
+- Email marked as verified (verified by Google)
+
+### Existing Users
+- Google ID linked to existing account
+- Maintains existing username and settings
+- Enables dual authentication (email + Google)
+- Updates last login information
+
+## Notes
+
+<Note>
+This endpoint is specifically designed for child account authentication. Parent accounts should use the standard sign-in endpoint.
+</Note>
+
+<Warning>
+The Google ID token must be obtained through a proper OAuth flow and should not be reused. Each authentication request should use a fresh token.
+</Warning>

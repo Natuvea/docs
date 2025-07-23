@@ -1,32 +1,20 @@
 ---
 title: 'Sign Up API'
-description: 'Create new user accounts with parent-child hierarchy'
+description: 'Create new user accounts with parent-child hierarchy and immediate authentication'
 api: 'POST https://api.authiqa.com/auth/signup'
 ---
 
 ## Overview
-
-Create a new user account, either as a parent organization account or a child account under an existing parent.
+Create a new user account, either as a parent organization account or a child account under an existing parent. Upon successful signup, users receive an immediate JWT token for authentication.
 
 ## API Details
 
 ### Request Format
-
-<ParamField body="username" type="string" required>
-  Username (alphanumeric + underscore only, max 30 chars)
-</ParamField>
-
-<ParamField body="email" type="string" required>
-  Valid email address
-</ParamField>
-
-<ParamField body="password" type="string" required>
-  Password meeting security requirements
-</ParamField>
-
-<ParamField body="parentPublicKey" type="string">
-  Required only for child account creation
-</ParamField>
+<ParamField body="username" type="string" required>Username (alphanumeric + underscore only, max 30 chars)</ParamField>
+<ParamField body="email" type="string" required>Valid email address</ParamField>
+<ParamField body="password" type="string" required>Password meeting security requirements</ParamField>
+<ParamField body="parentPublicKey" type="string">Required only for child account creation</ParamField>
+<ParamField body="verifyAuthPath" type="string">Optional custom verification path for email verification</ParamField>
 
 <RequestExample>
 ```json Parent Account
@@ -43,6 +31,15 @@ Create a new user account, either as a parent organization account or a child ac
   "email": "child@company.com",
   "password": "SecurePass123!",
   "parentPublicKey": "APK_1234567890abcdef_1234567890"
+}
+```
+
+```json With Custom Verification Path
+{
+  "username": "testuser",
+  "email": "user@example.com",
+  "password": "SecurePass123!",
+  "verifyAuthPath": "/custom-verify"
 }
 ```
 </RequestExample>
@@ -69,6 +66,7 @@ Test the API by filling in the values and clicking Send:
   <ParamField path="parentPublicKey" placeholder="APK_1234567890abcdef_1234">
     Parent public Key (for child accounts)
   </ParamField>
+  <ParamField path="verifyAuthPath" placeholder="/custom-verify">Custom verification path</ParamField>
 
   <Expandable title="Headers" defaultOpen>
     <ParamField header="Content-Type" value="application/json" />
@@ -156,12 +154,20 @@ curl_close($ch);
   </Card>
 </CardGroup>
 
+## Email Verification
+Email verification is conditionally sent based on organization settings:
+- **Child accounts**: Inherits parent's `emailVerificationRequired` setting
+- **Parent accounts**: Default to no verification (can be enabled via organization update)
+- **Custom verification path**: Use `verifyAuthPath` to specify custom verification URL
+
 ## Response Examples
 
 <ResponseField name="200: Success">
-  ```json
-  {
-    "success": true,
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "data": {
       "userID": "USR_12345",
       "username": "testuser",
@@ -169,10 +175,35 @@ curl_close($ch);
       "createdAt": 1729616234,
       "publicKey": "APK_abc123def456_1234567890",
       "emailVerified": false,
-      "parentAccount": null
+      "parentAccount": null,
+      "accountType": "parent",
+      "emailVerificationSent": false
     }
   }
-  ```
+}
+```
+</ResponseField>
+
+<ResponseField name="200: Success with Email Verification">
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "data": {
+      "userID": "USR_12345",
+      "username": "childuser",
+      "email": "child@company.com",
+      "createdAt": 1729616234,
+      "publicKey": "APK_abc123def456_1234567890",
+      "emailVerified": false,
+      "parentAccount": "APK_parent123_456",
+      "accountType": "child",
+      "emailVerificationSent": true
+    }
+  }
+}
+```
 </ResponseField>
 
 <ResponseField name="400: Invalid Format">
@@ -190,16 +221,40 @@ curl_close($ch);
 ## Error Codes
 
 <ResponseField name="400 Bad Request">
-  - `MISSING_REQUEST_BODY` - Request body required
-  - `INVALID_REQUEST_BODY` - Invalid JSON format
-  - `MISSING_REQUIRED_FIELDS` - Missing email/password
-  - `INVALID_USERNAME_FORMAT` - Invalid username format
-  - `INVALID_EMAIL_FORMAT` - Invalid email format
-  - `INVALID_PASSWORD_FORMAT` - Password requirements not met
+- `MISSING_REQUEST_BODY` - Request body required
+- `INVALID_REQUEST_BODY` - Invalid JSON format
+- `MISSING_REQUIRED_FIELDS` - Missing email/password
+- `INVALID_USERNAME_FORMAT` - Invalid username format
+- `INVALID_EMAIL_FORMAT` - Invalid email format
+- `INVALID_PASSWORD_FORMAT` - Password requirements not met
+- `PARENT_NOT_FOUND` - Invalid parent public key
+- `PARENT_INSUFFICIENT_BALANCE` - Parent account has insufficient balance
 </ResponseField>
 
 <ResponseField name="409 Conflict">
-  - `USERNAME_ALREADY_TAKEN` - Username exists
-  - `EMAIL_ALREADY_REGISTERED` - Email exists
-  - `ORGANIZATION_SCOPE_CONFLICT` - Email/username exists under parent
+- `USERNAME_ALREADY_TAKEN` - Username exists
+- `EMAIL_ALREADY_REGISTERED` - Email exists
+- `ORGANIZATION_SCOPE_CONFLICT` - Email/username exists under parent
 </ResponseField>
+
+<ResponseField name="500 Internal Server Error">
+- `INTERNAL_SERVER_ERROR` - Server error occurred
+- `EMAIL_SERVICE_ERROR` - Failed to send verification email
+</ResponseField>
+
+## Key Features
+
+### Immediate Authentication
+- JWT token provided immediately upon successful signup
+- No need for separate sign-in request
+- Token includes user account type and permissions
+
+### Conditional Email Verification
+- Email verification only sent when required by organization settings
+- `emailVerificationSent` flag indicates if verification email was sent
+- Custom verification paths supported via `verifyAuthPath`
+
+### Parent-Child Account Hierarchy
+- Child accounts automatically inherit parent organization settings
+- Parent account validation ensures sufficient balance for child operations
+- Automatic organization assignment for child accounts

@@ -583,6 +583,49 @@ https://api.authiqa.com/auth/google/callback
 <!-- Google SSO button will automatically appear if enabled -->
 ```
 
+### Google One Tap Configuration
+
+The widget includes advanced Google One Tap integration that can be controlled with the `enable-google-one-tap` attribute:
+
+```html
+<script 
+    defer
+    src="https://widget.authiqa.com"
+    data-public-key="YOUR_PUBLIC_KEY"
+    action="signin"
+    enable-google-one-tap="true"
+></script>
+```
+
+#### Google One Tap Behavior
+
+Google One Tap provides a streamlined authentication experience for users already logged into their Google accounts. The widget implements several optimizations for One Tap:
+
+- **Delayed Rendering**: One Tap is shown with a short delay after the Google button to prevent UI interference
+- **Session Management**: One Tap is only shown once per session to avoid repetitive prompts
+- **Form Switching**: One Tap is automatically dismissed when switching between authentication forms
+- **Success Tracking**: One Tap is not shown again after a successful authentication
+- **SPA Support**: One Tap is properly managed in Single Page Applications to prevent persistence issues
+
+#### Controlling Google One Tap
+
+You can control Google One Tap behavior in several ways:
+
+1. **Enable/Disable**: Set `enable-google-one-tap="false"` to completely disable One Tap while still showing the Google Sign-In button
+2. **Reset on Sign Out**: Call `widget.resetGoogleOneTap()` when a user signs out to allow One Tap to appear again in the same session
+3. **Cleanup**: Call `widget.cleanup()` when removing the widget from the DOM to ensure One Tap is properly dismissed
+
+#### Google One Tap vs. Google Sign-In Button
+
+The widget provides two Google authentication methods:
+
+1. **Google Sign-In Button**: Always appears when Google SSO is enabled for your organization
+2. **Google One Tap**: Appears as a popup prompt only when enabled and appropriate for the user's context
+
+<Note>
+Google One Tap is only shown on Sign In and Sign Up forms, not on other authentication forms like password reset or email verification.
+</Note>
+
 ### Required Google Console Settings Summary
 
 For quick reference, here are the essential settings needed in Google Cloud Console:
@@ -1628,11 +1671,36 @@ The hash navigation script supports the following hash values:
 | `#update` | Password Update form |
 | `#resend` | Resend Confirmation form |
 
-#### How It Works
+#### How Hash Navigation Works
 
-- The hash navigation script automatically detects changes to the URL hash
-- When the hash changes to a valid action (e.g., `#signin`), the corresponding form is displayed
-- The script works with any URL structure as long as it contains a valid hash
+The hash navigation script automatically reads all configuration from the main widget script tag, including:
+
+- `data-public-key`: Your public key
+- `theme`: Widget theme setting
+- All path attributes (verifyAuthPath, updatePasswordPath, etc.)
+- `enable-google-one-tap`: Google One Tap configuration
+
+When the page loads or the hash changes, the script:
+
+1. Extracts the action from the URL hash (e.g., `#signin` becomes `signin`)
+2. Checks if it's a valid authentication action
+3. Creates or retrieves the widget instance with all configuration from the script tag
+4. Shows the appropriate form based on the hash or falls back to the original action
+
+```javascript
+// Example of how hash navigation works internally
+function handleHashChange() {
+  const hash = window.location.hash.substring(1); // Remove the # character
+  const validActions = ['signin', 'signup', 'verify', 'reset', 'update', 'resend'];
+  
+  if (validActions.includes(hash)) {
+    // Show the form corresponding to the hash
+    widget.show(hash);
+  } else if (hash === '') {
+    // No hash or empty hash, respect the original action attribute
+    widget.show(originalAction);
+  }
+}
 
 #### URL Examples
 
@@ -1675,18 +1743,47 @@ function App() {
 }
 ```
 
-## Domain Restriction
+## Domain Validation
 
-The Authiqa widget includes a domain restriction feature that controls where the widget can be used:
+For security purposes, the widget includes domain validation that restricts where it can be used:
 
-<Card title="Domain Restriction" icon="shield-check">
-By default, the widget is restricted to work only on the organization's domain for security purposes. This prevents unauthorized use of your authentication widget on other websites.
+- By default, the widget only works on domains configured in your organization settings
+- For development and testing, domain restriction can be disabled through the API
+- When domain restriction is enabled, the widget will show an unauthorized error if used on non-approved domains
 
-For testing purposes (such as on JSFiddle, CodePen, or local development environments), this restriction can be disabled through the organization settings API.
+### How Domain Validation Works
 
-The domain restriction status can be checked via the [Get Organization Details](/api-reference/organization/organization-details) API and toggled using the [Update Organization](/api-reference/organization/organization) API.
-</Card>
+When the widget initializes, it:
+
+1. Fetches your organization details from the Authiqa API
+2. Checks if domain restriction is enabled (enabled by default)
+3. If enabled, compares the current domain with your organization's authorized domains
+4. If the domain is not authorized, displays an "Unauthorized Domain" error message
+
+The validation allows the widget to work on:
+- Your exact organization domain
+- Any subdomain of your organization domain
+- Authiqa domains (for testing in the Authiqa dashboard)
+
+### Configuring Domain Restriction
+
+You can check and update domain restriction settings through the Organization API:
+
+```bash
+# Check domain restriction status
+curl -X GET https://api.authiqa.com/organizations/{organization_id} \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+
+# Disable domain restriction for development
+curl -X PUT https://api.authiqa.com/organizations/{organization_id} \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "domainRestrictionEnabled": false
+  }'
+```
+
 
 <Note>
-When developing locally or in test environments where the domain doesn't match your organization's domain, you may need to temporarily disable domain restriction through the API.
+The development mode attribute should only be used for local testing and should not be included in production code. For production environments, properly configure your organization's authorized domains.
 </Note>

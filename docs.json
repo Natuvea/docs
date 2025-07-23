@@ -56,7 +56,9 @@
               "api-reference/authentication/verify",
               "api-reference/authentication/resend",
               "api-reference/authentication/reset",
-              "api-reference/authentication/update"
+              "api-reference/authentication/update",
+              "api-reference/authentication/google-auth",
+              "api-reference/authentication/user-profile"
             ]
           },
           {

@@ -1,28 +1,18 @@
 ---
-title: 'Sign In'
-description: 'Authenticate users and get access tokens'
+title: 'Sign In API'
+description: 'Authenticate users with enhanced organization support and password management'
 api: 'POST https://api.authiqa.com/auth/signin'
 ---
 
 ## Overview
-
-Authenticate users and receive JWT tokens for both parent and child accounts.
+Authenticate users and receive JWT tokens for both parent and child accounts. Supports enhanced organization-based authentication and widget access.
 
 ## API Details
 
 ### Request Format
-
-<ParamField body="email" type="string" required>
-  Email address for authentication
-</ParamField>
-
-<ParamField body="password" type="string" required>
-  User's password
-</ParamField>
-
-<ParamField body="parentPublicKey" type="string">
-  Required only for child accounts
-</ParamField>
+<ParamField body="email" type="string" required>Email address for authentication</ParamField>
+<ParamField body="password" type="string" required>User's password</ParamField>
+<ParamField body="parentPublicKey" type="string">Required for child accounts</ParamField>
 
 <RequestExample>
 ```json Parent Account
@@ -124,9 +114,79 @@ curl_close($ch);
 ```
 </CodeGroup>
 
+## Account Types & Authentication
+
+### Parent Accounts
+- **Standard Parent**: No `parentPublicKey` required
+- Parent accounts can have organization settings
+
+### Child Accounts
+- **Always require** `parentPublicKey` in request
+- Parent account must have sufficient balance
+- Inherit email verification requirements from parent
+
+### Organization-Based Authentication
+For organization accounts accessing widgets:
+1. User's organization must match the key owner's organization
+2. Organization must be in the authorized list
+3. Parent account must be active with sufficient balance
+
 ## Response Examples
 
-<ResponseField name="200: Success">
+<ResponseField name="200: Success - Parent Account">
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "userID": "user_123",
+      "email": "user@example.com",
+      "username": "user123",
+      "accountType": "parent",
+      "parentAccount": "ROOT",
+      "publicKey": "APK_xxx",
+      "organizationName": "Example Corp",
+      "organizationUrl": "https://example.com",
+      "organizationUpdateCount": 2
+    },
+    "passwordStatus": {
+      "expired": false,
+      "daysUntilExpiry": 75
+    },
+    "jwtSecret": "secret_key_for_parent"
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="200: Success - Child Account">
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "userID": "child_456",
+      "email": "child@example.com",
+      "username": "child123",
+      "accountType": "child",
+      "parentAccount": "APK_parent_key_123",
+      "publicKey": "APK_child_xxx",
+      "organizationName": "Example Corp",
+      "organizationUrl": null,
+      "organizationUpdateCount": 0
+    },
+    "passwordStatus": {
+      "expired": false,
+      "daysUntilExpiry": 90
+    }
+  }
+}
+```
+</ResponseField>
+
+<ResponseField name="200: Success - Password Expired">
 ```json
 {
   "success": true,
@@ -139,6 +199,10 @@ curl_close($ch);
       "accountType": "parent",
       "parentAccount": "ROOT",
       "publicKey": "APK_xxx"
+    },
+    "passwordStatus": {
+      "expired": true,
+      "daysUntilExpiry": 0
     }
   }
 }
@@ -173,19 +237,75 @@ curl_close($ch);
 ## Error Codes
 
 <ResponseField name="400 Bad Request">
-  - `MISSING_REQUEST_BODY` - Request body required
-  - `INVALID_REQUEST_BODY` - Invalid JSON format
-  - `MISSING_REQUIRED_FIELDS` - Missing email/password
-  - `MISSING_PARENT_PUBLIC_KEY` - Parent public key required for child accounts
+- `MISSING_REQUEST_BODY` - Request body required
+- `INVALID_REQUEST_BODY` - Invalid JSON format
+- `MISSING_REQUIRED_FIELDS` - Missing email/password
+- `MISSING_PARENT_PUBLIC_KEY` - Parent public key required for child accounts
+- `INVALID_REQUEST` - Parent public key should not be provided for standard parent accounts
+- `PARENT_NO_ORGANIZATION` - Parent account has no organization
 </ResponseField>
 
 <ResponseField name="401 Unauthorized">
-  - `INVALID_CREDENTIALS` - Invalid email or password
-  - `INVALID_PARENT_PUBLIC_KEY` - Invalid parent public key
+- `INVALID_CREDENTIALS` - Invalid email or password
+- `INVALID_PARENT_PUBLIC_KEY` - Invalid parent public key
+- `ORGANIZATION_MISMATCH` - Account organization does not match key owner
 </ResponseField>
 
 <ResponseField name="403 Forbidden">
-  - `EMAIL_NOT_VERIFIED` - Email verification required
-  - `ACCOUNT_INACTIVE` - Account is not active
-  - `ACCOUNT_LOCKED` - Too many failed attempts
+- `EMAIL_NOT_VERIFIED` - Email verification required
+- `ACCOUNT_INACTIVE` - Account is not active
+- `ACCOUNT_LOCKED` - Too many failed attempts
+- `PARENT_ACCOUNT_INACTIVE` - Parent account has insufficient balance
+- `PARENT_INACTIVE` - Parent account is not active
+- `ORGANIZATION_NOT_AUTHORIZED` - Organization not authorized for widget authentication
 </ResponseField>
+
+<ResponseField name="404 Not Found">
+- `USER_NOT_FOUND` - User account not found
+- `PARENT_NOT_FOUND` - Parent account not found
+</ResponseField>
+
+## Key Features
+
+### Password Management
+- **90-day password expiry** tracking
+- `passwordStatus` object includes:
+  - `expired`: Boolean indicating if password has expired
+  - `daysUntilExpiry`: Number of days remaining (0 if expired)
+- Password age calculated from `lastPasswordChanged` or account creation
+
+### Enhanced Security
+- **Login attempt management** with account locking
+- **Email verification** enforcement when required by organization
+- **Account status validation** (active/inactive)
+- **Parent account balance verification** for child operations
+
+### Organization Support
+- **Organization-based access control** with authorized organization lists
+- **Cross-organization validation** for enhanced security
+- **JWT secrets** provided for parent accounts
+
+### Account Hierarchy
+- **Child accounts** require parent public key and inherit parent settings
+- **Parent accounts** can authenticate with or without organization context
+- **Balance verification** ensures parent accounts can support child operations
+- **Organization inheritance** from parent to child accounts
+
+## Authentication Flow
+
+### Standard Parent Account
+1. Provide email and password (no parentPublicKey)
+2. Validate credentials and account status
+3. Return JWT token with user data and JWT secret
+
+### Child Account
+1. Provide email, password, and parentPublicKey
+2. Validate parent-child relationship
+3. Check parent account balance and status
+4. Return JWT token (uses parent's JWT secret)
+
+### Organization Widget Access
+1. Provide email, password, and organization's parentPublicKey
+2. Verify organization membership and authorization
+3. Check parent account status
+4. Return JWT token with organization context

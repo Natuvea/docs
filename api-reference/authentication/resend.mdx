@@ -1,23 +1,50 @@
 ---
 title: 'Resend Confirmation Email'
-description: 'Request a new email verification token'
+description: 'Request a new email verification token with JWT or traditional authentication'
 api: 'POST https://api.authiqa.com/auth/request-new-confirmation'
 ---
 
 ## Overview
 
-This endpoint allows users to request a new verification email if their previous token has expired or was lost. The API includes rate limiting and validation to prevent abuse.
+This endpoint allows users to request a new verification email if their previous token has expired or was lost. Supports both JWT authentication (for logged-in users) and traditional request body authentication. The API includes rate limiting and validation to prevent abuse.
 
 ## API Details
 
-### Request Format
+### Authentication Methods
 
+#### Method 1: JWT Authentication (Recommended)
+<ParamField header="Authorization" type="string">
+  Bearer JWT token for authenticated users
+</ParamField>
+
+<ParamField body="verifyAuthPath" type="string">
+  Optional custom verification path for email verification
+</ParamField>
+
+#### Method 2: Traditional Authentication
 <ParamField body="email" type="string" required>
   Email address to resend verification to
 </ParamField>
 
+<ParamField body="parentPublicKey" type="string">
+  Required for child accounts when using traditional authentication
+</ParamField>
+
+<ParamField body="verifyAuthPath" type="string">
+  Optional custom verification path for email verification
+</ParamField>
+
 <RequestExample>
-```bash cURL
+```bash cURL - JWT Authentication
+curl -X POST https://api.authiqa.com/auth/request-new-confirmation \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "verifyAuthPath": "/custom-verify"
+  }'
+```
+
+```bash cURL - Traditional Authentication
 curl -X POST https://api.authiqa.com/auth/request-new-confirmation \
   -H "Content-Type: application/json" \
   -d '{
@@ -25,7 +52,20 @@ curl -X POST https://api.authiqa.com/auth/request-new-confirmation \
   }'
 ```
 
-```javascript JavaScript
+```javascript JavaScript - JWT Authentication
+const response = await fetch('https://api.authiqa.com/auth/request-new-confirmation', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    verifyAuthPath: '/custom-verify'
+  })
+});
+```
+
+```javascript JavaScript - Traditional Authentication
 const response = await fetch('https://api.authiqa.com/auth/request-new-confirmation', {
   method: 'POST',
   headers: {
@@ -40,37 +80,53 @@ const response = await fetch('https://api.authiqa.com/auth/request-new-confirmat
 ```python Python
 import requests
 
+# JWT Authentication
 response = requests.post(
     'https://api.authiqa.com/auth/request-new-confirmation',
-    json={
-        'email': 'user@example.com'
-    }
+    headers={'Authorization': 'Bearer YOUR_JWT_TOKEN'},
+    json={'verifyAuthPath': '/custom-verify'}
 )
-```
 
-```php PHP
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'https://api.authiqa.com/auth/request-new-confirmation');
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-    'email' => 'user@example.com'
-]));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$response = curl_exec($ch);
-curl_close($ch);
+# Traditional Authentication
+response = requests.post(
+    'https://api.authiqa.com/auth/request-new-confirmation',
+    json={'email': 'user@example.com'}
+)
 ```
 </RequestExample>
 
 ## Try It Out
 
 <Note>
-Test the API by filling in your email address:
+Test the API using either JWT or traditional authentication:
 </Note>
 
 <Card>
-  <ParamField path="email" placeholder="user@example.com" required>
-    Email address to receive verification link
-  </ParamField>
+  <Tabs>
+    <Tab title="JWT Authentication">
+      <ParamField header="Authorization" placeholder="Bearer YOUR_JWT_TOKEN">
+        JWT token for authenticated users
+      </ParamField>
+
+      <ParamField path="verifyAuthPath" placeholder="/custom-verify">
+        Custom verification path (optional)
+      </ParamField>
+    </Tab>
+
+    <Tab title="Traditional Authentication">
+      <ParamField path="email" placeholder="user@example.com" required>
+        Email address to receive verification link
+      </ParamField>
+
+      <ParamField path="parentPublicKey" placeholder="APK_1234567890abcdef_1234">
+        Parent public key (required for child accounts)
+      </ParamField>
+
+      <ParamField path="verifyAuthPath" placeholder="/custom-verify">
+        Custom verification path (optional)
+      </ParamField>
+    </Tab>
+  </Tabs>
 
   <Expandable title="Headers" defaultOpen>
     <ParamField header="Content-Type" value="application/json" />
@@ -88,31 +144,46 @@ Test the API by filling in your email address:
 ## Process Flow
 
 <Steps>
-  <Step title="Request Validation">
-    - Validate request body and JSON format
-    - Check for required email field
-    - Validate email format
+  <Step title="Authentication Detection">
+    - Check for JWT token in Authorization header
+    - If JWT present, verify and extract user information
+    - If no JWT, use traditional request body authentication
   </Step>
 
-  <Step title="User Verification">
-    - Check if user exists
-    - Verify email status
-    - Check rate limiting (1-minute cooldown)
+  <Step title="User Resolution">
+    - JWT flow: Get user by decoded token information
+    - Traditional flow: Get user by email and optional parent public key
+    - Validate user exists and account requirements
   </Step>
 
-  <Step title="Token Generation">
+  <Step title="Validation Checks">
+    - Verify email is not already verified
+    - Check account type specific requirements
+    - Validate rate limiting (1-minute cooldown)
+    - Check parent account status (for child accounts)
+  </Step>
+
+  <Step title="Token Generation & Email">
     - Generate new 12-character verification token
-    - Validate token format (uppercase letters and numbers)
-  </Step>
-
-  <Step title="Email Delivery">
     - Update verification token in database
-    - Update lastVerificationTokenSentAt timestamp
-    - Send verification email with branding:
-      - Parent accounts: Authiqa branding
-      - Child accounts: Parent organization branding
+    - Send verification email with appropriate branding
+    - Support custom verification paths
   </Step>
 </Steps>
+
+## Authentication Flows
+
+### JWT Authentication Flow
+1. User provides JWT token in Authorization header
+2. System verifies token and extracts user information
+3. User information used to send verification email
+4. Optional custom verification path supported
+
+### Traditional Authentication Flow
+1. User provides email in request body
+2. For child accounts, parent public key required
+3. System validates user and parent relationship
+4. Verification email sent with organization branding
 
 
 ## Response Examples
@@ -160,19 +231,34 @@ Test the API by filling in your email address:
 ## Error Codes
 
 <ResponseField name="400 Bad Request">
-  - `MISSING_REQUEST_BODY` - Request body required
-  - `INVALID_REQUEST_BODY` - Invalid JSON format
-  - `MISSING_REQUIRED_FIELDS` - Email field required
-  - `INVALID_EMAIL_FORMAT` - Invalid email format
-  - `EMAIL_ALREADY_VERIFIED` - Email already verified
+- `MISSING_REQUEST_BODY` - Request body required (traditional auth)
+- `INVALID_REQUEST_BODY` - Invalid JSON format
+- `MISSING_REQUIRED_FIELDS` - Email field required (traditional auth)
+- `INVALID_EMAIL_FORMAT` - Invalid email format
+- `EMAIL_ALREADY_VERIFIED` - Email already verified
+- `MISSING_PARENT_PUBLIC_KEY` - Parent public key required for child accounts
+- `INVALID_PARENT_PUBLIC_KEY_FORMAT` - Invalid public key format
+- `INVALID_REQUEST` - Parent public key should not be provided for parent accounts
+</ResponseField>
+
+<ResponseField name="401 Unauthorized">
+- `INVALID_PARENT_PUBLIC_KEY` - Invalid parent public key
+</ResponseField>
+
+<ResponseField name="403 Forbidden">
+- `PARENT_ACCOUNT_INACTIVE` - Parent account has insufficient balance
 </ResponseField>
 
 <ResponseField name="404 Not Found">
-  - `USER_NOT_FOUND` - No account with provided email
+- `USER_NOT_FOUND` - No account with provided information
 </ResponseField>
 
 <ResponseField name="429 Too Many Requests">
-  - `RATE_LIMIT_EXCEEDED` - Wait before requesting again
+- `RATE_LIMIT_EXCEEDED` - Wait before requesting again
+</ResponseField>
+
+<ResponseField name="500 Internal Server Error">
+- `INTERNAL_ERROR` - Unexpected server error occurred
 </ResponseField>
 
 ## Rate Limiting

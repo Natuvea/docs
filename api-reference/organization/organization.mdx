@@ -8,10 +8,12 @@ api: 'POST https://api.authiqa.com/auth/update-organization'
 
 ## Overview
 
-This endpoint allows parent account holders to customize their organization details and authentication URLs for white-labeling. The endpoint supports three modes of operation:
+This endpoint allows parent account holders to customize their organization details and authentication URLs for white-labeling. The endpoint supports five modes of operation:
 1. Initial Setup - Set organization name and URL
 2. Auth URLs Update - Modify specific authentication URLs
 3. Domain Restriction Toggle - Control domain validation for the widget
+4. Email Verification Toggle - Control email verification requirements
+5. Google SSO Configuration - Manage Google OAuth settings
 
 ## API Details
 
@@ -39,6 +41,30 @@ This endpoint allows parent account holders to customize their organization deta
   Controls whether the authentication widget is restricted to the organization's domain.
   When `true` (default): Widget only works on the organization's domain.
   When `false`: Widget works on any domain (for testing purposes).
+</ParamField>
+
+#### Mode 4: Email Verification Toggle
+<ParamField body="emailVerificationRequired" type="boolean">
+  Controls whether email verification is required for new accounts.
+  When `true`: New accounts must verify their email before full access.
+  When `false` (default): Email verification is optional.
+</ParamField>
+
+#### Mode 5: Google SSO Configuration
+<ParamField body="googleSsoConfig" type="object">
+  Google OAuth configuration for organization-specific SSO.
+</ParamField>
+
+<ParamField body="googleSsoConfig.enabled" type="boolean">
+  Enable or disable Google SSO for the organization.
+</ParamField>
+
+<ParamField body="googleSsoConfig.clientId" type="string">
+  Google OAuth client ID (required when enabling).
+</ParamField>
+
+<ParamField body="googleSsoConfig.clientSecret" type="string">
+  Google OAuth client secret (required when enabling, encrypted before storage).
 </ParamField>
 
 ### Default Auth URLs
@@ -106,6 +132,34 @@ const response = await fetch('https://api.authiqa.com/auth/update-organization',
   },
   body: JSON.stringify({
     domainRestrictionEnabled: false
+  })
+});
+
+// Mode 4: Toggle email verification requirement
+const response = await fetch('https://api.authiqa.com/auth/update-organization', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    emailVerificationRequired: true
+  })
+});
+
+// Mode 5: Configure Google SSO
+const response = await fetch('https://api.authiqa.com/auth/update-organization', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    googleSsoConfig: {
+      enabled: true,
+      clientId: 'your-google-client-id',
+      clientSecret: 'your-google-client-secret'
+    }
   })
 });
 ```
@@ -208,6 +262,36 @@ Select a mode and test the API:
         Toggle domain restriction for the authentication widget
       </ParamField>
     </Tab>
+
+    <Tab title="Mode 4: Email Verification">
+      <ParamField header="Authorization" required placeholder="Bearer YOUR_JWT_TOKEN">
+        JWT token for authentication
+      </ParamField>
+
+      <ParamField body="emailVerificationRequired" type="boolean" default="false">
+        Toggle email verification requirement for new accounts
+      </ParamField>
+    </Tab>
+
+    <Tab title="Mode 5: Google SSO">
+      <ParamField header="Authorization" required placeholder="Bearer YOUR_JWT_TOKEN">
+        JWT token for authentication
+      </ParamField>
+
+      <Expandable title="Google SSO Configuration" defaultOpen>
+        <ParamField body="googleSsoConfig.enabled" type="boolean" required>
+          Enable or disable Google SSO
+        </ParamField>
+
+        <ParamField body="googleSsoConfig.clientId" placeholder="123456789-abcdefghijklmnop.apps.googleusercontent.com">
+          Google OAuth client ID (required when enabling)
+        </ParamField>
+
+        <ParamField body="googleSsoConfig.clientSecret" placeholder="GOCSPX-your-client-secret">
+          Google OAuth client secret (required when enabling)
+        </ParamField>
+      </Expandable>
+    </Tab>
   </Tabs>
 
   <Expandable title="Headers" defaultOpen>
@@ -283,18 +367,62 @@ Select a mode and test the API:
 ```
 </ResponseField>
 
+### Mode 4: Email Verification Toggle Response
+<ResponseField name="200: Success">
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Email verification requirement updated successfully",
+    "data": {
+      "emailVerificationRequired": true
+    }
+  }
+}
+```
+</ResponseField>
+
+### Mode 5: Google SSO Configuration Response
+<ResponseField name="200: Success">
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Google SSO config updated successfully",
+    "data": {
+      "googleSsoConfig": {
+        "enabled": true,
+        "clientId": "123456789-abcdefghijklmnop.apps.googleusercontent.com",
+        "clientSecret": "encrypted_secret_value"
+      }
+    }
+  }
+}
+```
+</ResponseField>
+
 ## Error Codes
 
 <ResponseField name="400 Bad Request">
-  - `INVALID_ORGANIZATION_NAME` - Organization name requirements not met
-  - `INVALID_ORGANIZATION_URL` - Invalid URL format
-  - `INVALID_AUTH_URLS` - Authentication URLs invalid/inaccessible
-  - `MISSING_REQUIRED_URLS` - Not all required URLs provided
+- `INVALID_ORGANIZATION_NAME` - Organization name requirements not met
+- `INVALID_ORGANIZATION_URL` - Invalid URL format
+- `INVALID_AUTH_URLS` - Authentication URLs invalid/inaccessible
+- `MISSING_REQUIRED_URLS` - Not all required URLs provided
+- `INVALID_INPUT` - Invalid Google SSO configuration
+- `MISSING_REQUIRED_FIELDS` - No valid update parameters provided
 </ResponseField>
 
 <ResponseField name="401 Unauthorized">
-  - `UNAUTHORIZED` - Invalid/missing JWT token
-  - `UNAUTHORIZED_ACCESS` - Child accounts cannot update organization
+- `UNAUTHORIZED` - Invalid/missing JWT token
+- `UNAUTHORIZED_ACCESS` - Child accounts cannot update organization
+</ResponseField>
+
+<ResponseField name="404 Not Found">
+- `USER_NOT_FOUND` - User account not found
+</ResponseField>
+
+<ResponseField name="500 Internal Server Error">
+- `INTERNAL_ERROR` - Unexpected server error occurred
 </ResponseField>
 
 ## Validation Rules
@@ -313,15 +441,30 @@ Select a mode and test the API:
   </Card>
 </CardGroup>
 
-## Domain Restriction Feature
+## Advanced Features
 
-<Card title="Domain Restriction Toggle" icon="shield-alt">
-The domain restriction toggle controls where your authentication widget can be used:
+<CardGroup cols={2}>
+  <Card title="Domain Restriction" icon="shield-alt">
+    **Control Widget Access**
+    - Enabled (Default): Widget only works on your domain
+    - Disabled: Widget works on any domain (testing)
+    - Independent toggle without affecting other settings
+  </Card>
+  <Card title="Email Verification" icon="envelope-check">
+    **Manage Account Security**
+    - Disabled (Default): Optional email verification
+    - Enabled: Required email verification for new accounts
+    - Applies to all child accounts under organization
+  </Card>
+</CardGroup>
 
-- **Enabled (Default)**: Widget only works on your organization's domain, providing security against unauthorized use
-- **Disabled**: Widget works on any domain, useful for testing on platforms like JSFiddle or local development environments
-
-This setting can be toggled independently without affecting other organization settings.
+<Card title="Google SSO Configuration" icon="google">
+**Organization-Specific OAuth**
+- Configure your own Google OAuth credentials
+- Custom branding and domain restrictions
+- Encrypted client secret storage
+- Toggle-able enable/disable functionality
+- Supports both credential updates and enable/disable operations
 </Card>
 
 ## Important Notes
@@ -331,5 +474,30 @@ This setting can be toggled independently without affecting other organization s
 - Auth URLs can be updated individually without affecting other URLs
 - Default auth URLs are automatically generated during initial setup
 - Auth URLs must match the organization's domain
-- Domain restriction is enabled by default for security but can be disabled for testing purposes
+- Domain restriction is enabled by default for security but can be disabled for testing
+- Email verification is disabled by default but can be enabled for enhanced security
+- Google SSO client secrets are encrypted before storage
+- Google SSO can be toggled without losing stored credentials
 </Note>
+
+## Google SSO Setup Requirements
+
+<Steps>
+  <Step title="Google Cloud Console">
+    - Create OAuth 2.0 credentials
+    - Configure authorized domains
+    - Set up consent screen
+  </Step>
+  
+  <Step title="Authiqa Configuration">
+    - Use this API to configure client ID and secret
+    - Enable Google SSO for your organization
+    - Test authentication flow
+  </Step>
+  
+  <Step title="Widget Integration">
+    - Google sign-in button appears automatically
+    - Uses your organization's OAuth credentials
+    - Maintains your branding and domain restrictions
+  </Step>
+</Steps>
