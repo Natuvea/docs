@@ -1,0 +1,341 @@
+---
+title: "Facebook Authentication"
+description: "Authenticate users with Facebook OAuth 2.0 using access tokens"
+---
+
+# Facebook Authentication
+
+Authenticate users with Facebook using OAuth 2.0 access tokens. This endpoint verifies Facebook access tokens and handles user account creation or linking based on Facebook user information.
+
+## API Endpoint
+
+```http
+POST /facebook-auth
+```
+
+## Request Format
+
+### Headers
+- `Content-Type: application/json`
+- `Origin`: Your domain (for CORS)
+
+### Body Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `accessToken` | string | ✅ | Facebook OAuth 2.0 access token from successful login |
+| `parentPublicKey` | string | ✅ | Parent organization public key (format: `APK_[hex32]_[timestamp]`) |
+
+### Example Request
+
+```json
+{
+  "accessToken": "EAAGmJ7xZCz...",
+  "parentPublicKey": "APK_a1b2c3d4e5f6..._1234567890"
+}
+```
+
+## Facebook Developer Setup Guide
+
+### 1. Create Facebook Developer Account
+1. Go to [developers.facebook.com](https://developers.facebook.com)
+2. Sign in with your Facebook account
+3. Create a developer account if you haven't already
+
+### 2. Create New App
+1. Navigate to **My Apps** → **Create App**
+2. Select app type: **Consumer** or **Business**
+3. Enter app details:
+   - **App Name**: Your application name
+   - **App Contact Email**: Your contact email
+   - **Business Account**: Select or create (optional)
+
+### 3. Configure Facebook Login
+1. In your app dashboard, click **Add Product**
+2. Select **Facebook Login**
+3. Choose **Web** platform
+4. Configure settings:
+   - **Valid OAuth Redirect URIs**: Add your redirect URIs
+   - **App Domains**: Add your domain
+   - **Privacy Policy URL**: Your privacy policy URL
+   - **Terms of Service URL**: Your terms URL
+
+### 4. Get Your Credentials
+1. Navigate to **Settings** → **Basic**
+2. Copy the following:
+   - **App ID** (Client ID)
+   - **App Secret** (Client Secret)
+
+### 5. Configure Required Permissions
+1. Go to **App Review** → **Permissions and Features**
+2. Ensure these permissions are added:
+   - `email` - to access user's email address
+   - `public_profile` - to access basic profile info
+
+### 6. Environment Variables
+Configure these in your Lambda environment:
+
+```bash
+FACEBOOK_CLIENT_ID=your_app_id
+FACEBOOK_CLIENT_SECRET=your_app_secret
+```
+
+## Authentication Flow
+
+Unlike other OAuth flows, Facebook authentication uses a **client-side flow**:
+
+1. **Client-Side Login**: User logs in via Facebook SDK on frontend
+2. **Token Acquisition**: Frontend receives access token from Facebook
+3. **Token Verification**: Send access token to this endpoint for verification
+4. **Account Management**: Create new account or link to existing user
+
+### Client-Side Integration Example
+
+```javascript
+// Using Facebook JavaScript SDK
+FB.login(function(response) {
+  if (response.authResponse) {
+    const accessToken = response.authResponse.accessToken;
+    // Send accessToken to your backend
+    verifyFacebookToken(accessToken);
+  }
+}, {scope: 'email,public_profile'});
+
+async function verifyFacebookToken(accessToken) {
+  const response = await fetch('/facebook-auth', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      accessToken: accessToken,
+      parentPublicKey: 'APK_a1b2c3d4e5f6..._1234567890'
+    })
+  });
+  
+  const data = await response.json();
+  if (data.success) {
+    // Handle successful authentication
+    localStorage.setItem('token', data.token);
+  }
+}
+```
+
+## Response Format
+
+### Success Response (200 OK)
+
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "userID": "user_123456",
+    "email": "user@example.com",
+    "username": "facebook_username",
+    "publicKey": "PK_user_public_key"
+  }
+}
+```
+
+### Error Response (400 Bad Request)
+
+```json
+{
+  "message": "Facebook access token is required",
+  "details": [
+    {
+      "message": "Facebook access token is required",
+      "path": ["accessToken"],
+      "type": "any.required"
+    }
+  ]
+}
+```
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| 400 | Invalid input parameters or Facebook access token |
+| 400 | Invalid parent public key format |
+| 400 | Failed to retrieve required user information from Facebook |
+| 500 | Failed to load parent organization |
+| 500 | Failed to create or link user account |
+| 500 | Failed to generate authentication token |
+
+## Code Examples
+
+### cURL
+
+```bash
+curl -X POST https://your-api.com/facebook-auth \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accessToken": "EAAGmJ7xZCz...",
+    "parentPublicKey": "APK_a1b2c3d4e5f6..._1234567890"
+  }'
+```
+
+### JavaScript
+
+```javascript
+const response = await fetch('/facebook-auth', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    accessToken: facebookAccessToken,
+    parentPublicKey: 'APK_a1b2c3d4e5f6..._1234567890'
+  })
+});
+
+const data = await response.json();
+if (data.success) {
+  localStorage.setItem('token', data.token);
+}
+```
+
+### Python
+
+```python
+import requests
+
+response = requests.post(
+    'https://your-api.com/facebook-auth',
+    json={
+        'accessToken': facebook_access_token,
+        'parentPublicKey': 'APK_a1b2c3d4e5f6..._1234567890'
+    }
+)
+
+data = response.json()
+if data.get('success'):
+    token = data['token']
+```
+
+### PHP
+
+```php
+<?php
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://your-api.com/facebook-auth');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'accessToken' => $facebookAccessToken,
+    'parentPublicKey' => 'APK_a1b2c3d4e5f6..._1234567890'
+]));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+$data = json_decode($response, true);
+curl_close($ch);
+
+if ($data['success']) {
+    $token = $data['token'];
+}
+?>
+```
+
+## Organization-Specific Configuration
+
+You can configure Facebook OAuth credentials per organization by setting the following in your organization SSO configuration:
+
+```json
+{
+  "facebookSsoConfig": {
+    "enabled": true,
+    "clientId": "your_org_specific_app_id",
+    "clientSecret": "encrypted_app_secret"
+  }
+}
+```
+
+## Security Features
+
+- **Access Token Verification**: Direct verification with Facebook Graph API
+- **Encrypted Client Secrets**: Organization-specific secrets are encrypted at rest
+- **Token Validation**: All tokens are validated before use
+- **Rate Limiting**: Built-in protection against abuse
+- **Required Permissions**: Ensures email and profile permissions are granted
+
+## User Account Handling
+
+### New Users
+- Creates new user account with Facebook ID linked
+- Uses Facebook email as primary email
+- Sets last login provider to "facebook"
+- Sends Telegram notification for new signups
+
+### Existing Users
+- Links Facebook account to existing user if email matches
+- Updates last login timestamp and provider
+- Increments Facebook authentication counter
+
+### Account Linking
+- Links Facebook ID to existing account if user already exists with same email
+- Maintains single user identity across multiple authentication methods
+
+## Facebook SDK Integration
+
+### Web Integration
+
+```html
+<!-- Include Facebook SDK -->
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : 'your-app-id',
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v18.0'
+    });
+  };
+
+  function facebookLogin() {
+    FB.login(function(response) {
+      if (response.authResponse) {
+        const accessToken = response.authResponse.accessToken;
+        // Send to your backend
+        verifyFacebookToken(accessToken);
+      }
+    }, {scope: 'email,public_profile'});
+  }
+</script>
+```
+
+### Mobile Integration
+
+#### React Native
+```javascript
+import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
+
+const facebookLogin = async () => {
+  const result = await LoginManager.logInWithPermissions(['email', 'public_profile']);
+  if (!result.isCancelled) {
+    const data = await AccessToken.getCurrentAccessToken();
+    if (data) {
+      const accessToken = data.accessToken;
+      // Send to your backend
+      verifyFacebookToken(accessToken);
+    }
+  }
+};
+```
+
+#### Flutter
+```dart
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
+final facebookLogin = FacebookAuth.instance;
+final result = await facebookLogin.login();
+if (result.status == LoginStatus.success) {
+  final accessToken = result.accessToken!.token;
+  // Send to your backend
+  verifyFacebookToken(accessToken);
+}
+```

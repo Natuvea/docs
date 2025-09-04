@@ -6,7 +6,7 @@ api: 'POST https://api.authiqa.com/auth/google'
 
 ## Overview
 
-This endpoint allows child users to authenticate using their Google account. The system supports both new user creation and linking existing accounts with Google authentication. Parent organizations can configure their own Google OAuth credentials for custom branding.
+This endpoint allows  users to authenticate using their Google account. The system supports both new user creation and linking existing accounts with Google authentication. Parent organizations can configure their own Google OAuth credentials for custom branding.
 
 ## API Details
 
@@ -189,6 +189,60 @@ curl_close($ch);
 }
 ```
 </ResponseField>
+
+## Google Developer Setup Guide
+
+### Creating a Google OAuth Application
+
+<Steps>
+  <Step title="Access Google Cloud Console">
+    - Go to [Google Cloud Console](https://console.cloud.google.com/)
+    - Create a new project or select an existing one
+    - Ensure billing is enabled for your project
+  </Step>
+
+  <Step title="Enable Google+ API">
+    - Navigate to **APIs & Services > Library**
+    - Search for **Google+ API** (or **Google People API** for newer projects)
+    - Click **Enable** to enable the API for your project
+  </Step>
+
+  <Step title="Create OAuth Credentials">
+    - Go to **APIs & Services > Credentials**
+    - Click **Create Credentials > OAuth client ID**
+    - If prompted, configure the OAuth consent screen first
+    - Select **Web application** as the application type
+  </Step>
+
+  <Step title="Configure Redirect URLs">
+    - Add your redirect URLs in **Authorized redirect URIs**:
+      - For development: `http://localhost:3000/auth/google/callback`
+      - For production: `https://yourdomain.com/auth/google/callback`
+    - Save the credentials to get your **Client ID** and **Client Secret**
+  </Step>
+
+  <Step title="Configure Organization Settings">
+    - In your parent organization dashboard, navigate to **Settings > Authentication**
+    - Enter your **Google Client ID** and **Google Client Secret**
+    - Save the configuration to enable Google SSO for child accounts
+  </Step>
+</Steps>
+
+### Required Scopes
+
+The following scopes are required for Google authentication:
+- `email` - Access to user's email address
+- `profile` - Access to user's basic profile information
+- `openid` - OpenID Connect authentication
+
+### Testing Your Setup
+
+<Note>
+Before going live, test your Google OAuth integration:
+1. Use Google's [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/)
+2. Test the complete flow in your development environment
+3. Verify email verification status is returned
+</Note>
 
 ## Error Codes
 

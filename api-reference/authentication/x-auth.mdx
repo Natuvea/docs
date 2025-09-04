@@ -1,0 +1,273 @@
+---
+title: "X (Twitter) Authentication"
+description: "Authenticate users with X (formerly Twitter) OAuth 2.0"
+---
+
+# X (Twitter) Authentication
+
+Authenticate users with X (formerly Twitter) using OAuth 2.0. This endpoint handles the complete authentication flow including token exchange and user account management.
+
+## API Endpoint
+
+```http
+POST /x-auth
+```
+
+## Request Format
+
+### Headers
+- `Content-Type: application/json`
+- `Origin`: Your domain (for CORS)
+
+### Body Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `code` | string | ✅ | Authorization code from X OAuth flow |
+| `parentPublicKey` | string | ✅ | Parent organization public key (format: `APK_[hex32]_[timestamp]`) |
+| `codeVerifier` | string | ✅ | PKCE code verifier for OAuth 2.0 security |
+| `redirectUri` | string | ✅ | Must match the redirect URI used in authorization request |
+
+### Example Request
+
+```json
+{
+  "code": "V1lY3VwM1p4Q2N...",
+  "parentPublicKey": "APK_a1b2c3d4e5f6..._1234567890",
+  "codeVerifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+  "redirectUri": "https://yourapp.com/auth/callback"
+}
+```
+
+## X Developer Setup Guide
+
+### 1. Create X Developer Account
+1. Go to [developer.twitter.com](https://developer.twitter.com)
+2. Sign in with your X/Twitter account
+3. Apply for a developer account if you haven't already
+
+### 2. Create New App
+1. Navigate to **Projects & Apps** → **Overview**
+2. Click **Create App**
+3. Enter app details:
+   - **App Name**: Your application name
+   - **Application Description**: Brief description of your app
+   - **Website URL**: Your application's URL
+   - **Callback URLs**: Add your redirect URIs (e.g., `https://yourapp.com/auth/callback`)
+
+### 3. Configure OAuth 2.0 Settings
+1. Go to your app's **Settings** tab
+2. Scroll to **User authentication settings**
+3. Click **Set up** or **Edit**
+4. Configure:
+   - **App permissions**: Choose "Read and Write" or "Read and Write and Direct Messages"
+   - **Type of App**: Select "Web App, Automated App or Bot"
+   - **Callback URI**: Add your redirect URI
+   - **Website URL**: Add your website URL
+
+### 4. Get Your Credentials
+1. Navigate to **Keys and tokens** tab
+2. Copy the following:
+   - **Client ID** (OAuth 2.0 Client ID)
+   - **Client Secret** (OAuth 2.0 Client Secret)
+
+### 5. Important: Disable Email Requirement
+**⚠️ Critical Configuration**: X OAuth does not provide user email by default. You must:
+
+1. Go to your app's **Settings** tab
+2. Under **Authentication settings**, ensure **Request email address from users** is **disabled**
+3. Our system will generate placeholder emails for users (`username@x-user.authiqa.com`)
+
+### 6. Environment Variables
+Configure these in your Lambda environment:
+
+```bash
+X_CLIENT_ID=your_client_id
+X_CLIENT_SECRET=your_client_secret
+```
+
+## Authentication Flow
+
+1. **Authorization**: Redirect user to X authorization URL
+2. **Callback**: User returns with authorization code
+3. **Token Exchange**: Exchange code for access token
+4. **User Info**: Fetch user profile from X API
+5. **Account Management**: Create new account or link to existing user
+
+### Authorization URL Format
+
+```
+https://twitter.com/i/oauth2/authorize?
+  response_type=code&
+  client_id=YOUR_CLIENT_ID&
+  redirect_uri=YOUR_REDIRECT_URI&
+  scope=users.read&
+  state=YOUR_STATE&
+  code_challenge=YOUR_CODE_CHALLENGE&
+  code_challenge_method=S256
+```
+
+## Response Format
+
+### Success Response (200 OK)
+
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "userID": "user_123456",
+    "email": "username@x-user.authiqa.com",
+    "username": "twitter_username",
+    "publicKey": "PK_user_public_key"
+  }
+}
+```
+
+### Error Response (400 Bad Request)
+
+```json
+{
+  "message": "Invalid X authorization code",
+  "details": [
+    {
+      "message": "\"code\" is required",
+      "path": ["code"],
+      "type": "any.required"
+    }
+  ]
+}
+```
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| 400 | Invalid input parameters or X authorization code |
+| 400 | Invalid parent public key format |
+| 500 | Failed to load parent organization |
+| 500 | Failed to exchange code for token |
+| 500 | Failed to fetch user info from X |
+| 500 | Failed to create or link user account |
+
+## Code Examples
+
+### cURL
+
+```bash
+curl -X POST https://your-api.com/x-auth \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "V1lY3VwM1p4Q2N...",
+    "parentPublicKey": "APK_a1b2c3d4e5f6..._1234567890",
+    "codeVerifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+    "redirectUri": "https://yourapp.com/auth/callback"
+  }'
+```
+
+### JavaScript
+
+```javascript
+const response = await fetch('/x-auth', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    code: authorizationCode,
+    parentPublicKey: 'APK_a1b2c3d4e5f6..._1234567890',
+    codeVerifier: codeVerifier,
+    redirectUri: window.location.origin + '/auth/callback'
+  })
+});
+
+const data = await response.json();
+if (data.success) {
+  localStorage.setItem('token', data.token);
+}
+```
+
+### Python
+
+```python
+import requests
+
+response = requests.post(
+    'https://your-api.com/x-auth',
+    json={
+        'code': authorization_code,
+        'parentPublicKey': 'APK_a1b2c3d4e5f6..._1234567890',
+        'codeVerifier': code_verifier,
+        'redirectUri': 'https://yourapp.com/auth/callback'
+    }
+)
+
+data = response.json()
+if data.get('success'):
+    token = data['token']
+```
+
+### PHP
+
+```php
+<?php
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://your-api.com/x-auth');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'code' => $authorizationCode,
+    'parentPublicKey' => 'APK_a1b2c3d4e5f6..._1234567890',
+    'codeVerifier' => $codeVerifier,
+    'redirectUri' => 'https://yourapp.com/auth/callback'
+]));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+$data = json_decode($response, true);
+curl_close($ch);
+
+if ($data['success']) {
+    $token = $data['token'];
+}
+?>
+```
+
+## Organization-Specific Configuration
+
+You can configure X OAuth credentials per organization by setting the following in your organization SSO configuration:
+
+```json
+{
+  "xSsoConfig": {
+    "enabled": true,
+    "clientId": "your_org_specific_client_id",
+    "clientSecret": "encrypted_client_secret"
+  }
+}
+```
+
+## Security Features
+
+- **PKCE (Proof Key for Code Exchange)**: Required for OAuth 2.0 security
+- **State Parameter**: Recommended for CSRF protection
+- **Encrypted Client Secrets**: Organization-specific secrets are encrypted at rest
+- **Token Validation**: All tokens are validated before use
+- **Rate Limiting**: Built-in protection against abuse
+
+## User Account Handling
+
+### New Users
+- Creates new user account with X ID linked
+- Generates placeholder email: `username@x-user.authiqa.com`
+- Sets last login provider to "x"
+- Sends Telegram notification for new signups
+
+### Existing Users
+- Links X account to existing user if email matches
+- Updates last login timestamp and provider
+- Increments X authentication counter
+
+### Account Linking
+- Links X ID to existing account if user already exists with same email
+- Maintains single user identity across multiple authentication methods
