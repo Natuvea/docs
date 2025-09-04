@@ -35,7 +35,6 @@ The widget supports these configuration attributes:
 
 ### Optional Attributes
 - `theme`: `"light"` (default) or `"dark"`
-- `preset`: Select a predefined design preset. One of `modern`, `classic`, `corporate`, `sharp`, `minimal`
 - `disable-styles`: `"true"` or `"false"` (default)
 - `termsAndConditions`: URL for terms and conditions page
 - `privacy`: URL for privacy policy
@@ -376,326 +375,28 @@ The widget now supports extensive customization of input fields through the `cus
 Labels follow accessibility best practices by being properly associated with their input fields using the `for` attribute. This improves usability for screen readers and allows users to click on the label to focus the input field.
 </Note>
 
-## Presets
-
-Authiqa includes built‑in visual presets to quickly match popular design aesthetics. You can apply a preset with the `preset` attribute on the script tag or programmatically via the widget API.
-
-Supported presets:
-- modern
-- classic
-- corporate
-- sharp
-- minimal
-
-
-
-### Apply a preset (script tag)
-
-```html
-<div id="authiqa"></div>
-<script
-  defer
-  src="https://widget.authiqa.com"
-  data-public-key="YOUR_PUBLIC_KEY"
-  action="signin"
-  preset="modern"
-></script>
-```
-
-### Apply a preset (programmatically)
-
-```html
-<div id="authiqa"></div>
-<script defer src="https://widget.authiqa.com" data-public-key="YOUR_PUBLIC_KEY"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const widget = new window.AuthiqaWidget({
-      publicKey: 'YOUR_PUBLIC_KEY',
-      container: 'authiqa',
-      mode: 'popup',
-      theme: 'light',
-      preset: 'classic' // initial preset
-    });
-
-    // Later in runtime you can switch presets
-    widget.applyPreset('sharp');
-  });
-</script>
-```
-
-### Customizing on top of a preset
-
-You can provide customization overrides alongside a preset. The preset provides a complete `customization` baseline that is deeply merged with your overrides.
-
-```html
-<script
-  defer
-  src="https://widget.authiqa.com"
-  data-public-key="YOUR_PUBLIC_KEY"
-  action="signup"
-  preset="corporate"
-  data-customization='{
-    "colors": {
-      "buttonBackground": "#0ea5e9",
-      "buttonText": "#ffffff"
-    },
-    "typography": {
-      "titleText": { "signupText": "Join Our Platform" }
-    }
-  }'
-></script>
-```
-
-Key areas you can override in `data-customization` include:
-- pageLayout: background, form positioning, margins
-- layout: padding, borderRadius, width/height constraints
-- colors: background, buttonBackground, buttonText, input colors, borderColor
-- typography: titleText, sizes, weights, fonts, terms text, link colors
-- inputs: labels, placeholders, sizes, borders, focus styles
-- buttons: labels, sizes, radii, hover colors
-- navLinks: prompts and link text
-- passwordToggle: icon color/placement
-
-### Preset summaries
-
-- modern: Dark background, blue primary buttons, modern typography and subtle shadows. Great for contemporary apps.
-- classic: Light background,  blue accents, rounded inputs, centered titles. Familiar and clean.
-- corporate: Professionally inspired look, Segoe UI typography, conservative borders and spacing.
-- sharp: Dark theme with high contrast and pill buttons.
-- minimal: Large headings, clean light layout with purple accents.
-
----
-
-## GitHub SSO Integration
-
-Authiqa also includes built-in support for GitHub Single Sign-On (SSO). When GitHub SSO is enabled for your organization, the widget automatically displays a "Continue with GitHub" button on Sign In and Sign Up forms.
-
-### Quick Setup Checklist
-
-- [ ] GitHub account and organization (optional)
-- [ ] GitHub OAuth App with Client ID and Client Secret
-- [ ] Authorization callback URL configured
-- [ ] Authiqa organization updated with GitHub credentials
-
-### GitHub SSO Features
-
-<CardGroup cols={2}>
-  <Card title="GitHub Sign-In Button" icon="github">
-    - Automatically appears below the main submit button on Sign In and Sign Up forms
-    - Only displayed when GitHub SSO is enabled for your organization
-    - Styled to match your widget's theme and customization
-    - Handles both sign-in and sign-up flows using a unified callback
-  </Card>
-  <Card title="Unified OAuth Callback" icon="link">
-    - Uses a single callback URL for both Sign In and Sign Up flows
-    - Source context (signin/signup) is encoded in the OAuth state parameter
-    - The widget validates the state parameter for security
-    - After success, user is redirected to `successAuthPath` (or default success URL)
-  </Card>
-</CardGroup>
-
-### How GitHub SSO Works
-
-1. The widget fetches your organization details and detects whether GitHub SSO is enabled and has a valid Client ID
-2. If enabled, a GitHub button is rendered below the main submit button
-3. When clicked, the widget initiates GitHub OAuth by redirecting the user to `https://github.com/login/oauth/authorize`
-   - It passes `client_id`, `redirect_uri`, `scope=read:user user:email`, and a signed `state` payload
-   - The `redirect_uri` uses your configured `signinAuthPath` (or current page) because GitHub supports a single callback
-4. After GitHub redirects back with `code` and `state`, the widget detects the callback and exchanges the code via your API at `/auth/github`
-5. On success, tokens are stored, a success message is shown, and the user is redirected to `successAuthPath` (or default success URL)
-
-### GitHub OAuth App Setup Guide
-
-Follow these steps to create a GitHub OAuth App and configure your Authiqa organization.
-
-#### Step 1: Create a GitHub OAuth App
-
-1. Go to GitHub > Settings > Developer settings > OAuth Apps
-2. Click "New OAuth App"
-3. Fill out the form:
-   - Application name: Your app name
-   - Homepage URL: Your site URL (e.g., https://yourdomain.com)
-   - Authorization callback URL: Your sign-in page URL or the page where the widget is mounted (e.g., https://yourdomain.com/auth/signin)
-4. Click "Register application"
-
-#### Step 2: Get Your Credentials
-
-After creating the OAuth App:
-
-- Copy the Client ID
-- Generate a new Client Secret and save it securely
-
-#### Step 3: Configure Authiqa Organization
-
-Update your Authiqa organization with the GitHub credentials:
-
-```bash
-curl -X PUT https://api.authiqa.com/organizations/{organization_id} \
-  -H "Authorization: Bearer YOUR_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "githubClientId": "YOUR_GITHUB_CLIENT_ID",
-    "githubClientSecret": "YOUR_GITHUB_CLIENT_SECRET",
-    "githubSSOEnabled": true
-  }'
-```
-
-<Note>
-Replace `{organization_id}` with your actual organization ID and use your API token from the Authiqa dashboard.
-</Note>
-
-### Configuration Requirements
-
-Once configured, the widget will automatically:
-
-1. Detect that GitHub SSO is enabled
-2. Render the GitHub button on Sign In and Sign Up
-3. Handle the OAuth flow and error messaging
-
-### Testing Your GitHub SSO Setup
-
-#### Local Development
-
-For testing on localhost, use a callback URL like:
-
-```
-http://localhost:3000/auth/signin
-```
-
-Then set this exact URL in your GitHub OAuth App under "Authorization callback URL".
-
-#### Verification Steps
-
-1. Verify your organization configuration via the [Get Organization Details](/api-reference/organization/organization-details) API
-2. Load your auth page and check that the GitHub button appears
-3. Click the GitHub button and complete authentication
-4. Confirm you are redirected to your configured `successAuthPath`
-
-### Common GitHub SSO Issues
-
-<CardGroup cols={2}>
-  <Card title="GitHub Button Not Appearing" icon="eye-slash">
-    **Possible Causes:**
-    - GitHub SSO not enabled in organization settings
-    - Invalid or missing GitHub Client ID
-    - Domain restrictions preventing widget load
-
-    **Solutions:**
-    - Verify organization configuration via API
-    - Check GitHub Client ID in organization settings
-    - Ensure your domain is properly configured
-  </Card>
-  <Card title="OAuth Callback Errors" icon="triangle-exclamation">
-    **Possible Causes:**
-    - Callback URL mismatch between widget page and GitHub App settings
-    - Invalid or missing `state` parameter
-    - Network errors during code exchange
-
-    **Solutions:**
-    - Ensure `signinAuthPath` (or page URL) exactly matches the GitHub App callback URL
-    - Do not modify the `state` parameter
-    - Check network and server logs for `/auth/github`
-  </Card>
-</CardGroup>
-
-### GitHub SSO Example
-
-```html
-<div id="authiqa"></div>
-<script
-    defer
-    src="https://widget.authiqa.com"
-    data-public-key="YOUR_PUBLIC_KEY"
-    action="signin"
-></script>
-<!-- GitHub SSO button will automatically appear if enabled -->
-```
-
-### Notes on GitHub Flow
-
-- GitHub supports a single callback URL; the widget always uses `signinAuthPath` (or current page) for redirect
-- The widget encodes the source action (signin/signup) in the `state` parameter and validates it on return
-- After success, the widget stores tokens and redirects to `successAuthPath`
-- The widget also dismisses Google One Tap after a successful GitHub authentication to prevent overlapping prompts
-
-### Security Best Practices for GitHub SSO
-
-- Use HTTPS in production
-- Keep your Client Secret private
-- Validate the `state` parameter server-side
-- Verify the OAuth app callback URLs are exact matches
-
-### Troubleshooting Tips
-
-- Check your browser console for "Processing GitHub authentication..." messages during the callback
-- Ensure your backend `/auth/github` endpoint returns JSON with `{ success: true, token, user, jwtSecret }` on success
-- If you see errors like "GitHub authentication unauthorized", verify your client credentials and scopes
-
-### Coexistence with Google SSO
-
-When both Google and GitHub SSO are enabled:
-
-- The GitHub button appears first, then the Google button below it
-- Google One Tap may appear after the buttons render (if enabled)
-- On successful GitHub auth, the widget dismisses Google One Tap to avoid conflicting prompts
-
-### Example: Sign In page with both providers
-
-```html
-<div id="authiqa"></div>
-<script
-  defer
-  src="https://widget.authiqa.com"
-  data-public-key="YOUR_PUBLIC_KEY"
-  action="signin"
-></script>
-<!-- If both providers are enabled, both buttons will appear automatically -->
-```
-
-### Example: Sign Up page
-
-```html
-<div id="authiqa"></div>
-<script
-  defer
-  src="https://widget.authiqa.com"
-  data-public-key="YOUR_PUBLIC_KEY"
-  action="signup"
-></script>
-<!-- The same GitHub button and flow applies for sign-up -->
-```
-
-### Redirect Behavior
-
-- Successful auth redirects to: `successAuthPath` or the API-provided success URL
-- Errors display inline messages and do not redirect
-
-### Rate Limiting and State Cleanup
-
-- The widget stores a short-lived random state token in `sessionStorage` and removes it after handling the callback
-- If the callback URL is reloaded without valid state, the widget won’t process it
-
-### Configuration Summary (GitHub)
-
-| Setting | Where | Value |
-|---|---|---|
-| Client ID | GitHub OAuth App | YOUR_GITHUB_CLIENT_ID |
-| Client Secret | GitHub OAuth App | YOUR_GITHUB_CLIENT_SECRET |
-| Authorization callback URL | GitHub OAuth App | e.g., https://yourdomain.com/auth/signin |
-| signinAuthPath | Widget attribute | Path or absolute URL for callback page |
-| successAuthPath | Widget attribute | Post-auth redirect destination |
-
-The widget includes advanced Google One Tap integration that can be controlled with the `enable-google-one-tap` attribute:
-
-```html
-<script 
-    defer
-    src="https://widget.authiqa.com"
-    data-public-key="YOUR_PUBLIC_KEY"
-    action="signin"
-    enable-google-one-tap="true"
-></script>
-```
+## General OAuth Configuration (All Providers)
+
+Follow these steps to configure OAuth correctly across providers:
+
+1. Create an app in your provider's developer portal and enable Web OAuth 2.0.
+2. Configure Redirect URIs exactly as used by your widget page(s):
+   - X (Twitter): The widget may use `signinAuthPath`/`signupAuthPath` if provided; otherwise it uses the current page URL (`origin + pathname`). Add each exact URL to your X app's Redirect URLs.
+   - Facebook: The widget always uses the current page URL (`origin + pathname`). Add each exact URL to "Valid OAuth Redirect URIs".
+   - Google: See the Google SSO section below for required JavaScript origins and redirect URIs.
+3. Use least-privilege permissions/scopes:
+   - X (Twitter): Select "Read" only. Scopes used by the widget are `tweet.read` and `users.read`. Disable the "Request email address from users" option.
+   - Facebook: Ensure the `email` permission is enabled (the widget requests it).
+4. Configure your Authiqa organization to enable providers and set client IDs (and secrets if required by your backend). Only client IDs are used client-side; secrets remain on the server.
+5. Test environments:
+   - Include localhost URLs (e.g., `http://localhost:3000`) in each provider configuration when developing locally.
+   - Ensure the exact path you mount the widget on is included (e.g., `/auth`, `/signin`).
+6. SPA and state handling:
+   - The widget uses `sessionStorage` for OAuth state/PKCE. Do not clear it between redirect and callback.
+   - Keep the same `origin + pathname` across the redirect flow to avoid redirect URI mismatches.
+7. Post-auth redirect:
+   - Use `successAuthPath` to control the final redirect after successful authentication.
+   - If you use `signinAuthPath`/`signupAuthPath` for X, add those full URLs to the provider's allowed redirect list.
 
 ## Google SSO Integration
 
@@ -905,7 +606,6 @@ https://api.authiqa.com/auth/google/callback
 <!-- Google SSO button will automatically appear if enabled -->
 ```
 
-
 ### Google One Tap Configuration
 
 The widget includes advanced Google One Tap integration that can be controlled with the `enable-google-one-tap` attribute:
@@ -948,7 +648,6 @@ The widget provides two Google authentication methods:
 <Note>
 Google One Tap is only shown on Sign In and Sign Up forms, not on other authentication forms like password reset or email verification.
 </Note>
-
 
 ### Required Google Console Settings Summary
 
@@ -998,7 +697,33 @@ If Google authentication encounters an error, the widget displays clear error me
   </Card>
 </CardGroup>
 
+### Environment-Specific Configuration
 
+#### Production Environment
+```bash
+# Production API call
+curl -X PUT https://api.authiqa.com/organizations/{organization_id} \
+  -H "Authorization: Bearer YOUR_PRODUCTION_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "googleClientId": "PRODUCTION_GOOGLE_CLIENT_ID",
+    "googleClientSecret": "PRODUCTION_GOOGLE_CLIENT_SECRET",
+    "googleSSOEnabled": true
+  }'
+```
+
+#### Development/Staging Environment
+```bash
+# Development API call
+curl -X PUT https://api.authiqa.com/organizations/{organization_id} \
+  -H "Authorization: Bearer YOUR_DEV_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "googleClientId": "DEVELOPMENT_GOOGLE_CLIENT_ID",
+    "googleClientSecret": "DEVELOPMENT_GOOGLE_CLIENT_SECRET",
+    "googleSSOEnabled": true
+  }'
+```
 
 <Note>
 **Important:** Use separate Google OAuth clients for different environments (development, staging, production) to maintain security isolation and proper URL configuration.
@@ -1007,6 +732,68 @@ If Google authentication encounters an error, the widget displays clear error me
 <Note>
 Google SSO availability depends on your organization's configuration. Contact your administrator if you expect to see Google authentication options but they don't appear.
 </Note>
+
+## X (Twitter) SSO Integration
+
+The Authiqa widget includes built-in support for X (Twitter) OAuth 2.0 with PKCE. When X SSO is enabled for your organization and a Client ID is configured, the widget automatically displays an "Continue with X" button on Sign In and Sign Up forms.
+
+### Quick Setup Checklist
+- X Developer Portal app (Project + App)
+- OAuth 2.0 Client ID configured
+- App permissions include: `tweet.read`, `users.read`
+- Authorized Redirect URIs include your widget page URL(s)
+- X SSO enabled for your organization in Authiqa
+
+### How X SSO Works
+1. **Automatic Detection**: The widget checks your org configuration and shows the X button when enabled with a client ID.
+2. **PKCE Flow**: The widget uses OAuth 2.0 Authorization Code with PKCE (S256). It generates a `code_verifier` and `code_challenge` client-side.
+3. **State Management**: `state` includes the source (`signin` or `signup`) and a random token. The random value is stored in `sessionStorage` under `x_oauth_state` and verified on callback.
+4. **Redirect URI**:
+   - Sign In: uses `signinAuthPath` (if provided) or the current page URL (`origin + pathname`).
+   - Sign Up: uses `signupAuthPath` (if provided) or the current page URL.
+   The exact redirect URI used is stored in `sessionStorage` as `x_redirect_uri` and sent to the backend during code exchange.
+5. **Scopes**: The widget requests `tweet.read users.read`.
+6. **Callback Exchange**: On return from X, the widget POSTs to your API at `/auth/x` with `code`, `parentPublicKey`, and, if available, `codeVerifier` and `redirectUri`.
+7. **Success Handling**: Tokens are stored, success messages shown, then redirect to `successAuthPath` or the configured success URL.
+
+### X Configuration Notes
+- Ensure your X app allows OAuth 2.0 with PKCE and that the scopes above are granted.
+- Add every page URL where the widget is mounted to your X app's Redirect URLs (e.g., `https://yourdomain.com/auth`, `http://localhost:3000/auth`).
+- If you configure `signinAuthPath` or `signupAuthPath`, include those full URLs in your X app Redirect URLs.
+
+### X Troubleshooting
+- **X button not visible**: Confirm X SSO is enabled and a Client ID is configured for your org.
+- **Invalid redirect_uri**: Make sure the exact URL (including path) used by the widget is in your X app Redirect URLs.
+- **PKCE/State errors**: Avoid clearing sessionStorage between redirect and callback; the widget relies on `x_oauth_state` and `x_code_verifier`.
+
+## Facebook SSO Integration
+
+The Authiqa widget includes built-in support for Facebook OAuth 2.0. When Facebook SSO is enabled for your organization and a Client ID (App ID) is configured, the widget automatically displays a "Continue with Facebook" button on Sign In and Sign Up forms.
+
+### Quick Setup Checklist
+- Facebook App (App ID created in Meta for Developers)
+- OAuth redirect setup with the exact page URLs
+- Permission `email` enabled
+- Facebook SSO enabled for your organization in Authiqa
+
+### How Facebook SSO Works
+1. **Automatic Detection**: The widget checks your org configuration and shows the Facebook button when enabled with an App ID.
+2. **Authorization Flow**: The widget initiates the OAuth 2.0 code flow with the `email` scope.
+3. **State Management**: `state` includes the source (`signin` or `signup`) and a random token. The random value is stored in `sessionStorage` under `facebook_oauth_state` and verified on callback.
+4. **Redirect URI**: The widget uses the current page URL (`origin + pathname`) as the redirect URI.
+   - Include every page URL where the widget is mounted in your Facebook app's Valid OAuth Redirect URIs.
+   - Unlike X, Facebook flow does not use `signinAuthPath`/`signupAuthPath` overrides in the widget.
+5. **Callback Exchange**: On return from Facebook, the widget POSTs to your API at `/auth/facebook` with `code` and `parentPublicKey`.
+6. **Success Handling**: Tokens are stored, success messages shown, then redirect to `successAuthPath` or the configured success URL.
+
+### Facebook Configuration Notes
+- In Meta for Developers > Your App > Facebook Login > Settings, add the exact URLs where the widget is mounted to "Valid OAuth Redirect URIs" (e.g., `https://yourdomain.com/auth`, `http://localhost:3000/auth`).
+- Ensure the `email` permission is approved or available for your app mode.
+
+### Facebook Troubleshooting
+- **Facebook button not visible**: Confirm Facebook SSO is enabled and an App ID is configured for your org.
+- **URL mismatch**: The redirect URI must exactly match the current page URL; add each path where the widget runs.
+- **State errors**: Avoid clearing sessionStorage between redirect and callback; the widget relies on `facebook_oauth_state`.
 
 ### Custom Messages
 The widget supports customizable messages for success and loading states:
